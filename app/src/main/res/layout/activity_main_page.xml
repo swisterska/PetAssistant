@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/LogRegBackgroundLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <ImageButton
+        android:id="@+id/GoBackButton"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_gravity="top|start"
+        android:layout_marginLeft="10dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/goback"
+        android:translationY="-40dp">
+
+    </ImageButton>
+
+
+    <ImageButton
+        android:id="@+id/FoodButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:src="@drawable/foodbutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/WaterButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:src="@drawable/waterbutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/SymptomsButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:src="@drawable/symptomsbutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/HealthCareButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:src="@drawable/healthcarebutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/HealthHistoryButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:src="@drawable/healthhistorybutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/VetsNearbyButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/vetsnearbybutton">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/EmergencyyButton"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/emergencybutton">
+
+    </ImageButton>
+
+    <ImageView
+        android:id="@+id/LogoNoNameImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:src="@drawable/logobeznapisu"
+        android:translationY="45dp">
+
+    </ImageView>
+
+
+</LinearLayout>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "395439615487",
+    "project_id": "petassistant-4a375",
+    "storage_bucket": "petassistant-4a375.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:395439615487:android:14089d7401e152c4ce0bca",
+        "android_client_info": {
+          "package_name": "com.example.finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuZDropwt37juLNq45xRAP-un6iuzNWz8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

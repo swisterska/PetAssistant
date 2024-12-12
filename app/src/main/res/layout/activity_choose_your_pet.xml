@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/LogRegBackgroundLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/glikerblackfont"
+        android:gravity="top|center"
+        android:text="Choose the pet!"
+        android:textSize="35sp"
+        android:translationY="-40dp" />
+
+
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/DogButton"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="#00FFFFFF"
+                android:src="@drawable/dogbutton" />
+
+            <TextView
+                android:id="@+id/dogText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Woof Woof"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+       
+        <Space
+            android:layout_width="40dp"
+            android:layout_height="wrap_content" />
+
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/CatButton"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="#00FFFFFF"
+                android:src="@drawable/catbutton" />
+
+            <TextView
+                android:id="@+id/catText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yves"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="40dp">
+
+        <ImageButton
+            android:id="@+id/AddNewPetButton"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/addnewpetbutton" />
+        
+    </LinearLayout>
+</LinearLayout>

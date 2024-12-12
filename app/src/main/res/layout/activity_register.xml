@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/LogRegBackgroundLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <ImageButton
+        android:id="@+id/GoBackButton"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_gravity="top|start"
+        android:layout_marginLeft="10dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/goback">
+
+    </ImageButton>
+
+    <ImageView
+        android:id="@+id/LogoImage"
+        android:layout_width="311dp"
+        android:layout_height="347dp"
+        android:gravity="center"
+        android:src="@drawable/logo"
+        android:layout_marginBottom="10dp">
+
+    </ImageView>
+
+    <EditText
+        android:id="@+id/usernameTextEdit"
+        android:layout_width="316dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Username:" />
+
+    <EditText
+        android:id="@+id/emailTextEdit"
+        android:layout_width="316dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Email:" />
+
+
+    <EditText
+        android:id="@+id/passwordTextEdit"
+        android:layout_width="315dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Password:" />
+
+    <EditText
+        android:id="@+id/confirmPasswordTextEdit"
+        android:layout_width="315dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Confirm password:" />
+
+    <Button
+        android:id="@+id/RegisterButton"
+        android:layout_width="121dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/bg_selector"
+        android:text="Register"
+        android:textColor="@color/dark_blue"
+        android:textStyle="bold"
+        android:layout_marginTop="15dp">
+
+    </Button>
+
+
+
+</LinearLayout>
