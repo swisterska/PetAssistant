@@ -18,14 +18,13 @@
         android:translationY="-40dp" />
 
 
-    
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
 
-        
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,12 +49,12 @@
                 android:layout_marginTop="8dp" />
         </LinearLayout>
 
-       
+
         <Space
             android:layout_width="40dp"
             android:layout_height="wrap_content" />
 
-        
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
