@@ -18,20 +18,12 @@
         android:translationY="-40dp" />
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+    <ImageButton
+        android:id="@+id/AddNewPetButton"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/addnewpetbutton" />
+        
 
-
-        <ImageButton
-            android:id="@+id/AddNewPetButton"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:background="#00FFFFFF"
-            android:src="@drawable/addnewpetbutton" />
-
-    </LinearLayout>
 </LinearLayout>
-
