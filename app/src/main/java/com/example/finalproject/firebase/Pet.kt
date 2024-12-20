@@ -1,10 +1,25 @@
 package com.example.finalproject.firebase
 
+import java.time.LocalDate
+
+enum class Gender {
+    MALE,
+    FEMALE,
+    UNKNOWN // For cases where gender isn't specified
+}
+
 data class Pet(
-    val id: String = "",
+    var iconUri: String? = null,
+    var id: String = "",
     var name: String = "",
+    var dob: LocalDate? = null,
     var species: String = "",
-    var age: Int = 0,
+    var breed: String = "",
+    var allergies: MutableList<String> = mutableListOf(),
+    var diseases: MutableList<String> = mutableListOf(),
+    var weight: Double,
+    var city: String = "",
+    var gender: Gender = Gender.UNKNOWN,
     var feedingTime: MutableList<String> = mutableListOf(),
     var waterTime: MutableList<String> = mutableListOf(),
     var healthNotes: String = "",
@@ -36,12 +51,22 @@ data class Pet(
                 id = data["id"] as? String ?: "",
                 name = data["name"] as? String ?: "",
                 species = data["species"] as? String ?: "",
-                age = (data["age"] as? Number)?.toInt() ?: 0,
-                feedingTime = (data["feedingTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
-                waterTime = (data["waterTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
+                feedingTime = (data["feedingTime"] as? List<String>)?.toMutableList()
+                    ?: mutableListOf(),
+                waterTime = (data["waterTime"] as? List<String>)?.toMutableList()
+                    ?: mutableListOf(),
                 healthNotes = data["healthNotes"] as? String ?: "",
-                healthHistory = (data["healthHistory"] as? List<String>)?.toMutableList() ?: mutableListOf(),
-                ownerId = data["ownerId"] as? String ?: ""
+                healthHistory = (data["healthHistory"] as? List<String>)?.toMutableList()
+                    ?: mutableListOf(),
+                ownerId = data["ownerId"] as? String ?: "",
+                iconUri = TODO(),
+                dob = TODO(),
+                breed = TODO(),
+                allergies = TODO(),
+                diseases = TODO(),
+                weight = TODO(),
+                city = TODO(),
+                gender = TODO()
             )
         }
     }

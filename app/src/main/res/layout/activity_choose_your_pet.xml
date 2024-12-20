@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/glikerblackfont"
         android:gravity="top|center"
-        android:text="Choose the pet!"
+        android:text="Choose or add the pet!"
         android:textSize="35sp"
         android:translationY="-40dp" />
 
