@@ -12,7 +12,10 @@
         android:theme="@style/Theme.FinalProject"
         tools:targetApi="31">
         <activity
-            android:name=".RegisterPet"
+            android:name=".FoodActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterPetActivity"
             android:exported="false" />
         <activity
             android:name=".ChooseYourPetActivity"

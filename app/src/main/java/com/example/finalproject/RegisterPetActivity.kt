@@ -1,14 +1,20 @@
-package com.example.finalproject
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.example.finalproject.R
 import com.example.finalproject.firebase.Gender
 import com.example.finalproject.firebase.Pet
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.*
 
 class RegisterPetActivity : AppCompatActivity() {
 
@@ -21,28 +27,32 @@ class RegisterPetActivity : AppCompatActivity() {
     private lateinit var genderSpinner: Spinner
     private lateinit var allergiesInput: EditText
     private lateinit var diseasesInput: EditText
+    private lateinit var dobInput: EditText
     private lateinit var registerPetBtn: Button
     private lateinit var selectIconBtn: Button
 
     private var iconUri: Uri? = null
     private val GALLERY_REQUEST_CODE = 100
+    private var selectedDob: LocalDate? = null // Store selected Date of Birth
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_register_pet)
-//
-//        // Initialize UI components
-//        petIcon = findViewById(R.id.petIcon)
-//        petNameInput = findViewById(R.id.petNameInput)
-//        speciesInput = findViewById(R.id.speciesInput)
-//        breedInput = findViewById(R.id.breedInput)
-//        cityInput = findViewById(R.id.cityInput)
-//        weightInput = findViewById(R.id.weightInput)
-//        genderSpinner = findViewById(R.id.genderSpinner)
-//        allergiesInput = findViewById(R.id.allergiesInput)
-//        diseasesInput = findViewById(R.id.diseasesInput)
-//        registerPetBtn = findViewById(R.id.registerPetBtn)
-//        selectIconBtn = findViewById(R.id.selectIconBtn)
+        setContentView(R.layout.activity_register_pet)
+
+        // Initialize UI components
+        petIcon = findViewById(R.id.petIcon)
+        petNameInput = findViewById(R.id.petNameInput)
+        speciesInput = findViewById(R.id.speciesInput)
+        breedInput = findViewById(R.id.breedInput)
+        cityInput = findViewById(R.id.cityInput)
+        weightInput = findViewById(R.id.weightInput)
+        genderSpinner = findViewById(R.id.genderSpinner)
+        allergiesInput = findViewById(R.id.allergiesInput)
+        diseasesInput = findViewById(R.id.diseasesInput)
+        dobInput = findViewById(R.id.dobInput)
+        registerPetBtn = findViewById(R.id.registerPetBtn)
+        selectIconBtn = findViewById(R.id.selectIconBtn)
 
         // Set up Gender Spinner
         val genderAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, Gender.values())
@@ -54,6 +64,11 @@ class RegisterPetActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, GALLERY_REQUEST_CODE)
+        }
+
+        // Date Picker for Date of Birth
+        dobInput.setOnClickListener {
+            showDatePickerDialog()
         }
 
         // Register pet
@@ -84,7 +99,8 @@ class RegisterPetActivity : AppCompatActivity() {
             weight = weight,
             gender = gender,
             allergies = allergies,
-            diseases = diseases
+            diseases = diseases,
+            dob = selectedDob
         )
     }
 
@@ -129,6 +145,27 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
+    // Date Picker dialog
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { _, selectedYear, selectedMonth, selectedDay ->
+                val formattedDate = String.format("%02d/%02d/%d", selectedDay, selectedMonth + 1, selectedYear)
+                dobInput.setText(formattedDate)
+                selectedDob = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
+            },
+            year, month, day
+        )
+        datePickerDialog.show()
+    }
+
+    // Handle result of image selection from gallery
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
