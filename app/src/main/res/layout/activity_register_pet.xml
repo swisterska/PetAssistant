@@ -1,213 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/LogRegBackgroundLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/background"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LogRegBackgroundLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:background="@drawable/background">
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_gravity="center"
-        android:layout_marginLeft="10dp"
+        android:layout_height="wrap_content"
         android:fontFamily="@font/glikerblackfont"
         android:text="Register new pet"
         android:textColor="@color/black"
         android:textSize="25sp"
-        android:translationY="0dp" />
-
+        android:layout_gravity="center"/>
 
     <TextView
-        android:layout_width="270dp"
-        android:layout_height="20dp"
-        android:layout_gravity="start|top"
-        android:layout_marginLeft="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:fontFamily="@font/glikerblackfont"
         android:text="Choose your pet's profile picture:"
         android:textColor="@color/black"
-        android:translationY="0dp" />
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"/>
 
+    <!-- Icons row -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:translationY="0dp"
+        android:layout_gravity="center"
         android:layout_marginTop="10dp">
 
+        <ImageButton
+            android:id="@+id/DogButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/dogicon" />
 
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:orientation="vertical"
-            android:gravity="center">
+        <ImageButton
+            android:id="@+id/caticon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/caticon" />
 
-            <ImageButton
-                android:id="@+id/DogButton"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="#00FFFFFF"
-                android:src="@drawable/dogicon" />
+        <ImageButton
+            android:id="@+id/rabbiticon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/rabbiticon" />
 
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/snakeicon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/snakeicon" />
 
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/caticon"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="#00FFFFFF"
-                android:src="@drawable/caticon" />
-
-        </LinearLayout>
-
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/rabbiticon"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="#00FFFFFF"
-                android:src="@drawable/rabbiticon" />
-
-        </LinearLayout>
-
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/snakeicon"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="#00FFFFFF"
-                android:src="@drawable/snakeicon" />
-
-        </LinearLayout>
-
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/selectIconBtn"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="#00FFFFFF"
-                android:src="@drawable/addfromgalleryicon" />
-
-        </LinearLayout>
-
+        <ImageButton
+            android:id="@+id/selectIconBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/addfromgalleryicon" />
     </LinearLayout>
 
+    <!-- Form Inputs -->
     <EditText
         android:id="@+id/petNameInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="*Pet name: " />
+        android:hint="*Pet name: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/dobInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Date of birth " />
+        android:hint="Date of birth"
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/speciesInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="*Species: " />
+        android:hint="*Species: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/breedInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Breed: " />
+        android:hint="Breed: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/cityInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="City: " />
-
+        android:hint="City: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/allergiesInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Allergies: " />
+        android:hint="Allergies: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/diseasesInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Diseases: " />
+        android:hint="Diseases: "
+        android:layout_margin="8dp"/>
 
     <EditText
         android:id="@+id/weightInput"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Weight: " />
+        android:hint="Weight: "
+        android:layout_margin="8dp"/>
 
-    <EditText
+    <Spinner
         android:id="@+id/genderSpinner"
-        android:layout_width="316dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Gender: " />
-
-    <EditText
-        android:id="@+id/preferableVetInput"
-        android:layout_width="316dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:hint="Preferable vet: " />
+        android:layout_margin="8dp"/>
 
     <ImageButton
         android:id="@+id/registerPetBtn"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
+        android:layout_width="110dp"
+        android:layout_height="50dp"
+        android:src="@drawable/registernewpeticon"
         android:background="#00FFFFFF"
-        android:src="@drawable/registernewpeticon" />
-
-
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp" />
 </LinearLayout>

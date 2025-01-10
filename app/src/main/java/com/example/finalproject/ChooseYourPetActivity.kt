@@ -18,7 +18,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
         val addnewpet = findViewById<ImageButton>(R.id.AddNewPetButton)
         addnewpet.setOnClickListener {
 
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, RegisterPetActivity::class.java)
             startActivity(intent)
         }
     }
