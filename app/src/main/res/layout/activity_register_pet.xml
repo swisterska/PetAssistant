@@ -165,8 +165,9 @@
         android:layout_width="110dp"
         android:layout_height="50dp"
         android:background="#00FFFFFF"
+        android:src = "@drawable/registernewpeticon"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp" />
+         />
 
 </LinearLayout>
 
