@@ -13,7 +13,6 @@ class LogRegActivity : AppCompatActivity() {
 
         val buttonLogin = findViewById<Button>(R.id.ChoiceLoginButton)
         buttonLogin.setOnClickListener {
-
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }

@@ -23,8 +23,8 @@ data class User(
                 username = data["username"] as? String,
                 email = data["email"] as? String ?: "",
                 pets = (data["pets"] as? List<Map<String, Any?>>)?.map {
-                    Pet.fromMap(it) // Convert each pet map to a Pet object
-                } ?: listOf() // Default to an empty list if pets are missing
+                    Pet.fromMap(it)
+                } ?: listOf()
             )
         }
 
