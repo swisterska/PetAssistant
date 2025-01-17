@@ -24,5 +24,12 @@ class LogRegActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val breakbutton = findViewById<Button>(R.id.Break)
+        breakbutton.setOnClickListener {
+
+            val intent = Intent(this, MainPageActivity::class.java)
+            startActivity(intent)
+        }
+
         }
     }

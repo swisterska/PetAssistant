@@ -62,5 +62,12 @@ class MainPageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val GoBackButton = findViewById<ImageButton>(R.id.GoBackButton)
+        GoBackButton.setOnClickListener {
+
+            val intent = Intent(this, ChooseYourPetActivity::class.java)
+            startActivity(intent)
+        }
+
 
 }}

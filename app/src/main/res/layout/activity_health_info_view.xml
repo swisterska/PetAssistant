@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/background"
     android:padding="10dp">
 
     <!-- RecyclerView widget -->
@@ -33,18 +34,21 @@
         android:textColor="@android:color/darker_gray" />
 
     <!-- Center text -->
+
+    <!-- Delete button -->
     <TextView
         android:id="@+id/itemText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/itemImage"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="353dp"
         android:layout_toStartOf="@id/btnDelete"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@id/itemImage"
         android:text="Sample Text"
         android:textSize="16sp" />
 
-    <!-- Delete button -->
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"

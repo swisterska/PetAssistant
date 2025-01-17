@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LogRegBackgroundLayout"
@@ -107,12 +106,17 @@
         android:inputType="none"
         android:layout_margin="8dp"/>
 
-    <EditText
-        android:id="@+id/speciesInput"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="*Species: "
-        android:layout_margin="8dp"/>
+        android:layout_margin="8dp">
+        <Spinner
+            android:id="@+id/speciesInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:spinnerMode="dropdown" />
+    </FrameLayout>
 
     <EditText
         android:id="@+id/breedInput"
@@ -128,19 +132,22 @@
         android:hint="City: "
         android:layout_margin="8dp"/>
 
+    <!-- Allergies input with scroll -->
     <EditText
         android:id="@+id/allergiesInput"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:hint="Allergies: "
         android:layout_margin="8dp"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
         android:overScrollMode="always"/>
+
+    <!-- Diseases input with scroll -->
     <EditText
         android:id="@+id/diseasesInput"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:hint="Diseases: "
         android:layout_margin="8dp"
         android:inputType="textMultiLine"
@@ -166,9 +173,5 @@
         android:layout_height="50dp"
         android:background="#00FFFFFF"
         android:src = "@drawable/registernewpeticon"
-        android:layout_gravity="center"
-         />
-
+        android:layout_gravity="center" />
 </LinearLayout>
-
-
