@@ -1,6 +1,6 @@
 package com.example.finalproject
 
-import RegisterPetActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button

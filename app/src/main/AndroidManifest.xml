@@ -34,15 +34,11 @@
         <activity
             android:name=".FoodTimesActivity"
             android:exported="false" />
-        <activity
-            android:name=".HealthInfoDataa"
-            android:exported="false" />
+
         <activity
             android:name=".HealthInfoView"
             android:exported="false" />
-        <activity
-            android:name=".HealthInfoActivity"
-            android:exported="false" />
+
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 

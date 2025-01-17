@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.example.finalproject.firebase.Pet
 import kotlinx.coroutines.launch
 
 
@@ -103,7 +104,8 @@ class RegisterActivity : BaseActivity() {
                         val user = User(
                             id = firebaseUser.uid,
                             username = name,
-                            email = email
+                            email = email,
+                            pets = emptyList()
                         )
 
 
@@ -124,13 +126,6 @@ class RegisterActivity : BaseActivity() {
                     }
                 }
         }
-    }
-    fun userRegistrationSuccess() {
-        Toast.makeText(
-            this@RegisterActivity,
-            getString(R.string.register_success),
-            Toast.LENGTH_LONG
-        ).show()
     }
 
 }

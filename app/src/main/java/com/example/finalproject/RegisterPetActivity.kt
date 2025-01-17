@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -55,7 +56,9 @@ class RegisterPetActivity : AppCompatActivity() {
         weightInput = findViewById(R.id.weightInput)
         genderSpinner = findViewById(R.id.genderSpinner)
         allergiesInput = findViewById(R.id.allergiesInput)
+        allergiesInput.movementMethod = ScrollingMovementMethod()
         diseasesInput = findViewById(R.id.diseasesInput)
+        diseasesInput.movementMethod = ScrollingMovementMethod()
         dobInput = findViewById(R.id.dobInput)
         registerPetBtn = findViewById(R.id.registerPetBtn)
         selectIconBtn = findViewById(R.id.selectIconBtn)
@@ -78,13 +81,39 @@ class RegisterPetActivity : AppCompatActivity() {
         selectIconBtn.setOnClickListener { openGallery() }
 
         // Date Picker
-        dobInput.setOnClickListener { showDatePickerDialog() }
+        dobInput.setOnClickListener { val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        // Register button
-        registerPetBtn.setOnClickListener {
-            val pet = collectPetData()
-            if (validateInput(pet)) savePetToFirebase(pet)
+            // Show DatePickerDialog
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    // Format the selected date and set it to the EditText
+                    val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
+                    dobInput.setText(formattedDate)
+                },
+                year,
+                month,
+                day
+            )
+            datePickerDialog.show()
         }
+
+
+        // Register button click listener
+        registerPetBtn.setOnClickListener {
+            val pet = collectPetData() // Collect pet data from input fields
+
+            if (pet != null && validateInput(pet)) { // Validate input
+                savePetToFirebase(pet) // Save data to Firebase
+            } else {
+                // Show error message if validation fails
+                Toast.makeText(this, "Invalid input. Please try again.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 
     private fun selectPredefinedIcon(button: ImageButton, iconResId: Int) {
@@ -210,4 +239,5 @@ class RegisterPetActivity : AppCompatActivity() {
             selectedIconResId = null
         }
     }
+
 }

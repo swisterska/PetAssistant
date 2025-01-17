@@ -1,10 +1,13 @@
 package com.example.finalproject.firebase
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 data class User(
     val id: String = "",
     val username: String? = null,
     val email: String = "",
-    val pets: List<Pet> = listOf() // Default to an empty list
+    val pets: List<Pet> = emptyList() // Default to an empty list
 ) {
     companion object {
         /**
@@ -13,6 +16,7 @@ data class User(
          * @param data The map containing the user data fetched from Firestore.
          * @return A `User` object containing the mapped data.
          */
+        @RequiresApi(Build.VERSION_CODES.O)
         fun fromMap(data: Map<String, Any?>): User {
             return User(
                 id = data["id"] as? String ?: "",

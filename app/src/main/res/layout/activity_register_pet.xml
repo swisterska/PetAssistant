@@ -87,6 +87,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Date of birth"
+        android:focusable="false"
+        android:inputType="none"
         android:layout_margin="8dp"/>
 
     <EditText
@@ -115,14 +117,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Allergies: "
-        android:layout_margin="8dp"/>
-
+        android:layout_margin="8dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:overScrollMode="always"/>
     <EditText
         android:id="@+id/diseasesInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Diseases: "
-        android:layout_margin="8dp"/>
+        android:layout_margin="8dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:overScrollMode="always"/>
 
     <EditText
         android:id="@+id/weightInput"
@@ -141,8 +148,10 @@
         android:id="@+id/registerPetBtn"
         android:layout_width="110dp"
         android:layout_height="50dp"
-        android:src="@drawable/registernewpeticon"
         android:background="#00FFFFFF"
         android:layout_gravity="center"
         android:layout_marginTop="20dp" />
+
 </LinearLayout>
+
+
