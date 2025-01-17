@@ -103,7 +103,8 @@ class RegisterActivity : BaseActivity() {
                         val user = User(
                             id = firebaseUser.uid,
                             username = name,
-                            email = email
+                            email = email,
+                            pets = listOf()
                         )
 
 
@@ -117,10 +118,10 @@ class RegisterActivity : BaseActivity() {
                             }
                         }
 
-                        //FirebaseAuth.getInstance().signOut()
+                        FirebaseAuth.getInstance().signOut()
                         finish()
                     } else {
-                        showErrorSnackBar(task.exception!!.message.toString(), true)
+                        this.showErrorSnackBar(task.exception!!.message.toString(), true)
                     }
                 }
         }

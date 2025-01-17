@@ -47,6 +47,13 @@ class RegisterPetActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_pet)
 
+        val returnButton = findViewById<ImageButton>(R.id.GoBackButton)
+        returnButton.setOnClickListener {
+
+            val intent = Intent(this, ChooseYourPetActivity::class.java)
+            startActivity(intent)
+        }
+
         // Initialize UI components
         petNameInput = findViewById(R.id.petNameInput)
         speciesInput = findViewById(R.id.speciesInput)

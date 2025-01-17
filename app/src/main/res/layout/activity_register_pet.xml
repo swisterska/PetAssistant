@@ -8,14 +8,30 @@
     android:gravity="center"
     android:background="@drawable/background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/glikerblackfont"
-        android:text="Register new pet"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-        android:layout_gravity="center"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="9dp">
+
+        <ImageButton
+            android:id="@+id/GoBackButton"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/gobackcimpleblack"
+            android:layout_marginEnd="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/glikerblackfont"
+            android:text="Register new pet"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:translationX="15dp" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
