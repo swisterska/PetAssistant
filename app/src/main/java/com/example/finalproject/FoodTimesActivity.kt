@@ -1,16 +1,18 @@
 package com.example.finalproject
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import java.util.Calendar
 
 class FoodTimesActivity : AppCompatActivity() {
@@ -25,12 +27,6 @@ class FoodTimesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_times)
 
-        val returnButton = findViewById<ImageButton>(R.id.GoBackButtonFoodTimes)
-        returnButton.setOnClickListener {
-
-            val intent = Intent(this, MainPageActivity::class.java)
-            startActivity(intent)
-        }
 
         // Initialize views
         timePicker = findViewById(R.id.timePickerFood)
@@ -69,20 +65,20 @@ class FoodTimesActivity : AppCompatActivity() {
 
         // Create an Intent to trigger the notification
         val intent = Intent(this, NotificationReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        // Use the timestamp to generate a unique request code for each alarm
+        val requestCode = calendar.timeInMillis.toInt() // Unique identifier based on the time
+
+        // Create a PendingIntent that will trigger the NotificationReceiver
+        val pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         // Set the alarm to trigger at the scheduled time
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+
+        // Log for debugging purposes
+        println("Scheduled Notification at: ${calendar.time}")
     }
 
-    // Method to show all the timestamps (for debugging or user confirmation)
-    private fun showTimestamps() {
-        timestamps.forEach {
-            val time = String.format("%02d:%02d", it.get(Calendar.HOUR_OF_DAY), it.get(Calendar.MINUTE))
-            println("Scheduled Time: $time")
-        }
-
-    }
     // Method to update the TextView with the list of scheduled timestamps
     private fun updateTimestampsTextView() {
         // Format the timestamps list as a string
