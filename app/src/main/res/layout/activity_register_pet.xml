@@ -7,6 +7,7 @@
     android:gravity="center"
     android:background="@drawable/background">
 
+    <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -32,6 +33,7 @@
             android:translationX="15dp" />
     </LinearLayout>
 
+    <!-- Icons row -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,14 +43,13 @@
         android:layout_marginTop="10dp"
         android:layout_gravity="center"/>
 
-    <!-- Icons row -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
         android:layout_marginTop="10dp">
-
+        <!-- Icon Buttons for Pet Icons -->
         <ImageButton
             android:id="@+id/DogButton"
             android:layout_width="50dp"
@@ -106,17 +107,12 @@
         android:inputType="none"
         android:layout_margin="8dp"/>
 
-    <FrameLayout
+    <Spinner
+        android:id="@+id/speciesInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp">
-        <Spinner
-            android:id="@+id/speciesInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:spinnerMode="dropdown" />
-    </FrameLayout>
+        android:layout_margin="8dp"
+        android:spinnerMode="dropdown" />
 
     <EditText
         android:id="@+id/breedInput"
@@ -154,12 +150,33 @@
         android:scrollbars="vertical"
         android:overScrollMode="always"/>
 
-    <EditText
-        android:id="@+id/weightInput"
+    <!-- Weight section -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Weight: "
-        android:layout_margin="8dp"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_margin="8dp">
+
+        <TextView
+            android:id="@+id/weightLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weight (kg):"
+            android:textSize="16sp"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/weightValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
 
     <Spinner
         android:id="@+id/genderSpinner"
@@ -172,6 +189,6 @@
         android:layout_width="110dp"
         android:layout_height="50dp"
         android:background="#00FFFFFF"
-        android:src = "@drawable/registernewpeticon"
+        android:src="@drawable/registernewpeticon"
         android:layout_gravity="center" />
 </LinearLayout>

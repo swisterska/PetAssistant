@@ -9,7 +9,7 @@ import java.time.format.DateTimeParseException
 enum class Gender {
     MALE,
     FEMALE,
-    UNKNOWN // For cases where gender isn't specified
+    UNKNOWN
 }
 
 enum class Species {

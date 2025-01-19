@@ -1,10 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LogRegBackgroundLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WaterTimesActivity">
+    android:orientation="vertical"
+    android:background="@drawable/background">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Header layout with ImageButton -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="9dp">
+
+        <!-- ImageButton -->
+        <ImageButton
+            android:id="@+id/GoBackButtonWaterTimes"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/gobackcimpleblack"
+            android:layout_marginEnd="10dp"/>
+
+        <!-- Empty space to allow TextView to take available space -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <!-- TextView below the ImageButton -->
+    <TextView
+        android:id="@+id/FoodTimesText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:fontFamily="@font/glikerblackfont"
+        android:text="Set timestamps for water notifications"
+        android:textColor="@color/black"
+        android:textSize="25sp"
+        android:ellipsize="none"
+        android:singleLine="false"
+        android:lines="2"
+        android:scrollHorizontally="false"
+        android:padding="10dp"/>
+
+    <TimePicker
+        android:id="@+id/timePickerFood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:timePickerMode="spinner"/>
+
+    <!-- Button to set the selected time -->
+    <Button
+        android:id="@+id/setTimeFoodNotif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Time"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <!-- TextView to display the set timestamps -->
+    <TextView
+        android:id="@+id/timestampsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your scheduled timestamps will appear here.."
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:paddingTop="16dp"/>
+</LinearLayout>

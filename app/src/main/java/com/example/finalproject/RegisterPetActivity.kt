@@ -1,14 +1,13 @@
 package com.example.finalproject
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
-import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -26,24 +25,31 @@ class RegisterPetActivity : AppCompatActivity() {
     private lateinit var speciesSpinner: Spinner
     private lateinit var breedInput: EditText
     private lateinit var cityInput: EditText
-    private lateinit var weightInput: EditText
+    private lateinit var weightValue: TextView
     private lateinit var genderSpinner: Spinner
     private lateinit var allergiesInput: EditText
     private lateinit var diseasesInput: EditText
     private lateinit var dobInput: EditText
     private lateinit var registerPetBtn: ImageButton
     private lateinit var selectIconBtn: ImageButton
+    private lateinit var dogButton: ImageButton
+    private lateinit var catButton: ImageButton
+    private lateinit var rabbitButton: ImageButton
+    private lateinit var snakeButton: ImageButton
 
     private var iconUri: Uri? = null
     private var selectedIconResId: Int? = null
     private val GALLERY_REQUEST_CODE = 100
     private var selectedDob: LocalDate? = null
+    private var selectedWeight: Int = 0 // Stores the selected weight
+    private var selectedIconButton: ImageButton? = null // Track the selected icon button
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_pet)
 
+        // Initialize views
         val returnButton = findViewById<ImageButton>(R.id.GoBackButton)
         returnButton.setOnClickListener {
             val intent = Intent(this, ChooseYourPetActivity::class.java)
@@ -54,7 +60,7 @@ class RegisterPetActivity : AppCompatActivity() {
         speciesSpinner = findViewById(R.id.speciesInput)
         breedInput = findViewById(R.id.breedInput)
         cityInput = findViewById(R.id.cityInput)
-        weightInput = findViewById(R.id.weightInput)
+        weightValue = findViewById(R.id.weightValue)
         genderSpinner = findViewById(R.id.genderSpinner)
         allergiesInput = findViewById(R.id.allergiesInput)
         allergiesInput.movementMethod = ScrollingMovementMethod()
@@ -63,37 +69,37 @@ class RegisterPetActivity : AppCompatActivity() {
         dobInput = findViewById(R.id.dobInput)
         registerPetBtn = findViewById(R.id.registerPetBtn)
         selectIconBtn = findViewById(R.id.selectIconBtn)
+        dogButton = findViewById(R.id.DogButton)
+        catButton = findViewById(R.id.caticon)
+        rabbitButton = findViewById(R.id.rabbiticon)
+        snakeButton = findViewById(R.id.snakeicon)
 
+        // Set up species spinner
         val speciesList = mutableListOf("*Species").apply {
             addAll(Species.values().map { it.name })
         }
-
         val speciesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, speciesList)
         speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         speciesSpinner.adapter = speciesAdapter
 
-        speciesSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>, selectedItemView: View?, position: Int, id: Long) {
-                // No additional handling required here, as we're checking in the validateInput method
-            }
-
-            override fun onNothingSelected(parentView: AdapterView<*>) {
-                // No need to handle this explicitly since we're checking in the validateInput method
-            }
-        })
-
+        // Set up gender spinner
         val genderList = mutableListOf("Gender").apply {
             addAll(Gender.values().map { it.name })
         }
-
         val genderAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderList)
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = genderAdapter
 
+        // Open gallery for icon selection
         selectIconBtn.setOnClickListener { openGallery() }
 
+        // Open date picker dialog for DOB
         dobInput.setOnClickListener { showDatePickerDialog() }
 
+        // Open weight picker dialog on weightText click
+        weightValue.setOnClickListener { showWeightPickerDialog() }
+
+        // Register pet on button click
         registerPetBtn.setOnClickListener {
             val pet = collectPetData()
             if (pet != null && validateInput(pet)) {
@@ -101,6 +107,30 @@ class RegisterPetActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Invalid input. Please try again.", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // Set listeners for pet icons
+        dogButton.setOnClickListener { setSelectedIcon(dogButton) }
+        catButton.setOnClickListener { setSelectedIcon(catButton) }
+        rabbitButton.setOnClickListener { setSelectedIcon(rabbitButton) }
+        snakeButton.setOnClickListener { setSelectedIcon(snakeButton) }
+    }
+
+    private fun setSelectedIcon(selectedButton: ImageButton) {
+        // Reset background for previously selected button (if any)
+        selectedIconButton?.setBackgroundResource(android.R.color.transparent)
+
+        // Apply the border to the currently selected button
+        selectedButton.setBackgroundResource(R.drawable.selectediconframe)
+
+        // Update the reference to the currently selected button
+        selectedIconButton = selectedButton
+        selectedIconResId = when (selectedButton.id) {
+            R.id.DogButton -> R.drawable.dogicon
+            R.id.caticon -> R.drawable.caticon
+            R.id.rabbiticon -> R.drawable.rabbiticon
+            R.id.snakeicon -> R.drawable.snakeicon
+            else -> null
         }
     }
 
@@ -110,17 +140,53 @@ class RegisterPetActivity : AppCompatActivity() {
         startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                selectedDob = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
+                dobInput.setText(selectedDob.toString())
+            },
+            year, month, day
+        )
+        datePickerDialog.show()
+    }
+
+    private fun showWeightPickerDialog() {
+        val weightPicker = NumberPicker(this).apply {
+            minValue = 0
+            maxValue = 100
+            value = selectedWeight
+            wrapSelectorWheel = true
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Select Weight (kg)")
+            .setView(weightPicker)
+            .setPositiveButton("OK") { _, _ ->
+                selectedWeight = weightPicker.value
+                weightValue.text = selectedWeight.toString() // Update weight text
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun collectPetData(): Pet? {
         val name = petNameInput.text.toString().trim()
-        // Collect species value (ensure to handle 'UNKNOWN' case if no selection is made)
         val species = try {
             Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())
         } catch (e: IllegalArgumentException) {
-            Species.UNKNOWN // If no valid species is selected, default to 'UNKNOWN'
+            Species.UNKNOWN
         }
         val breed = breedInput.text.toString().trim()
         val city = cityInput.text.toString().trim()
-        val weight = weightInput.text.toString().toDoubleOrNull() ?: 0.0
+        val weight = selectedWeight.toDouble()
         val gender = try {
             Gender.valueOf(genderSpinner.selectedItem.toString().uppercase())
         } catch (e: IllegalArgumentException) {
@@ -150,13 +216,10 @@ class RegisterPetActivity : AppCompatActivity() {
             Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show()
             return false
         }
-
-        // Ensure the species is valid and not the default "*Species"
         if (pet.species.name == "*Species") {
             Toast.makeText(this, "Please choose a species from the list", Toast.LENGTH_SHORT).show()
             return false
         }
-
         return true
     }
 
@@ -189,29 +252,18 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun showDatePickerDialog() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, selectedYear, selectedMonth, selectedDay ->
-                selectedDob = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
-                dobInput.setText(selectedDob.toString())
-            },
-            year, month, day
-        )
-        datePickerDialog.show()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             iconUri = data?.data
-            selectedIconResId = null
+            // Remove the selection border from the previous icon button (if any)
+            selectedIconButton?.setBackgroundResource(android.R.color.transparent)
+
+            // Set the selected image as the background of the selectIconBtn
+            selectIconBtn.setImageURI(iconUri)
+            selectedIconResId = null // Clear any previously selected icon
+            // Apply the border around the selected icon (selectIconBtn)
+            selectIconBtn.setBackgroundResource(R.drawable.selectediconframe)
         }
     }
 }

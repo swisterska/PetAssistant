@@ -15,7 +15,7 @@
         android:layout_gravity="top|start"
         android:layout_marginLeft="10dp"
         android:background="#00FFFFFF"
-        android:src="@drawable/goback"
+        android:src="@drawable/gobackcimpleblack"
         android:translationY="-40dp">
 
     </ImageButton>
