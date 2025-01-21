@@ -6,15 +6,20 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import java.util.Calendar
 
+/**
+ * Activity for setting feeding times for pets and scheduling notifications.
+ */
 class FoodTimesActivity : AppCompatActivity() {
 
     private lateinit var timePicker: TimePicker
@@ -22,7 +27,11 @@ class FoodTimesActivity : AppCompatActivity() {
     private lateinit var timestampsTextView: TextView
     private val timestamps = mutableListOf<Calendar>()
 
-
+    /**
+     * Called when the activity is created. Initializes the UI components and sets up event listeners.
+     *
+     * @param savedInstanceState The saved instance state for the activity, if any.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_times)
@@ -58,8 +67,12 @@ class FoodTimesActivity : AppCompatActivity() {
             updateTimestampsTextView()
         }
     }
-
-    // Method to schedule a notification
+    /**
+     * Schedules a notification to trigger at the specified time.
+     *
+     * @param calendar The Calendar object representing the scheduled time.
+     */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun scheduleNotification(calendar: Calendar) {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -79,7 +92,9 @@ class FoodTimesActivity : AppCompatActivity() {
         println("Scheduled Notification at: ${calendar.time}")
     }
 
-    // Method to update the TextView with the list of scheduled timestamps
+    /**
+     * Updates the TextView with the list of scheduled feeding times.
+     */
     private fun updateTimestampsTextView() {
         // Format the timestamps list as a string
         val timestampsList = timestamps.joinToString("\n") {

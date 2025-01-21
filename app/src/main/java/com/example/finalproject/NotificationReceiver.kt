@@ -13,8 +13,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
+/**
+ * NotificationReceiver is a BroadcastReceiver responsible for handling notifications.
+ * It listens for broadcast intents and sends a notification to the user when triggered.
+ * The notification reminds the user to give food to their pet.
+ */
 class NotificationReceiver : BroadcastReceiver() {
 
+    /**
+     * This method is called when the receiver receives a broadcast.
+     * It creates a notification channel (if necessary) and builds a notification.
+     * The notification is then sent to the user.
+     *
+     * @param context the context in which the receiver is running
+     * @param intent the intent that triggered this receiver
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
             // Create the notification channel
@@ -46,15 +59,20 @@ class NotificationReceiver : BroadcastReceiver() {
 
 
     /**
-     * Companion object to hold constant values for the NotificationChannel and Notification ID.
-     *
-     * ### Why use a companion object?
-     * Companion objects in Kotlin are used to define static members that belong to the class rather than a specific instance.
+     * Companion object to hold constant values related to the NotificationChannel.
+     * It includes the channel ID and notification ID.
      */
     companion object {
         private const val CHANNEL_ID = "FoodReminderChannel"
         private const val NOTIFICATION_ID = 1
     }
+
+    /**
+     * Creates a notification channel for devices running Android Oreo (API 26) and above.
+     * The channel is used to categorize the notification and manage its behavior.
+     *
+     * @param context the context in which the notification channel will be created
+     */
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(

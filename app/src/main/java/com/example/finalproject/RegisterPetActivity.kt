@@ -20,6 +20,10 @@ import com.google.firebase.storage.FirebaseStorage
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * RegisterPetActivity handles the process of registering a new pet by allowing the user to input pet details,
+ * select a species, gender, date of birth, and upload an icon. The pet data is then stored in Firebase.
+ */
 class RegisterPetActivity : AppCompatActivity() {
 
     private lateinit var petNameInput: EditText
@@ -39,6 +43,10 @@ class RegisterPetActivity : AppCompatActivity() {
     private val GALLERY_REQUEST_CODE = 100
     private var selectedDob: LocalDate? = null
 
+    /**
+     * Called when the activity is created. Sets up the UI components, including spinners for species and gender,
+     * and click listeners for the buttons.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,12 +112,20 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Opens the gallery to allow the user to select a pet icon image.
+     */
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
 
+    /**
+     * Collects all the pet details entered by the user in the form and returns a Pet object.
+     *
+     * @return Pet object or null if data collection fails.
+     */
     private fun collectPetData(): Pet? {
         val name = petNameInput.text.toString().trim()
         // Collect species value (ensure to handle 'UNKNOWN' case if no selection is made)
@@ -145,6 +161,12 @@ class RegisterPetActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * Validates the input fields to ensure that the pet's details are correct.
+     *
+     * @param pet The pet object containing the details to be validated.
+     * @return true if the input is valid, false otherwise.
+     */
     private fun validateInput(pet: Pet): Boolean {
         if (pet.name.isBlank()) {
             Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show()
@@ -160,6 +182,11 @@ class RegisterPetActivity : AppCompatActivity() {
         return true
     }
 
+    /**
+     * Saves the pet data to Firebase. If an icon was selected, it will be uploaded to Firebase Storage.
+     *
+     * @param pet The pet object to be saved to Firebase.
+     */
     private fun savePetToFirebase(pet: Pet) {
         if (iconUri != null) {
             val storageRef = FirebaseStorage.getInstance().reference.child("pet_icons/${pet.name}_${System.currentTimeMillis()}.jpg")
@@ -174,6 +201,11 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Saves the pet details to Firebase Realtime Database.
+     *
+     * @param pet The pet object to be saved.
+     */
     private fun savePetDetails(pet: Pet) {
         val dbRef = FirebaseDatabase.getInstance().reference.child("pets")
         dbRef.push().setValue(pet).addOnCompleteListener {
@@ -189,6 +221,9 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Displays a DatePicker dialog for the user to select the pet's date of birth.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
@@ -207,6 +242,13 @@ class RegisterPetActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
+    /**
+     * Handles the result from the gallery activity when an icon is selected.
+     *
+     * @param requestCode The request code for the activity result.
+     * @param resultCode The result code returned by the activity.
+     * @param data The intent data returned by the activity.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {

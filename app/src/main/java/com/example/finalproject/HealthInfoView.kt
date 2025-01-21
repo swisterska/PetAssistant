@@ -6,6 +6,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 
+/**
+ * Activity for displaying a list of health information items using a RecyclerView.
+ * Data is fetched from a Firebase Realtime Database node named "items".
+ */
 class HealthInfoView : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -13,6 +17,11 @@ class HealthInfoView : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private var itemList = mutableListOf<HealthInfoData>()
 
+    /**
+     * Initializes the activity and sets up the RecyclerView and Firebase database listener.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state, if any.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_health_info_view)
@@ -40,7 +49,7 @@ class HealthInfoView : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                // Handles errors
             }
         })
     }

@@ -3,6 +3,14 @@ package com.example.finalproject.firebase
 import android.os.Build
 import androidx.annotation.RequiresApi
 
+/**
+ * A data class representing a user in the application.
+ *
+ * @property id The unique identifier for the user. Defaults to an empty string.
+ * @property username The username of the user. This is nullable, as it may not always be provided.
+ * @property email The user's email address. This is required and cannot be null.
+ * @property pets A list of pets associated with the user. Defaults to an empty list if no pets are provided.
+ */
 data class User(
     val id: String = "",
     val username: String? = null,

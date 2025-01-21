@@ -6,12 +6,30 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
+/**
+ * Enum representing the gender of a pet.
+ */
 enum class Gender {
+
+    /**
+     * Represents male gender.
+     */
     MALE,
+
+    /**
+     * Represents female gender.
+     */
     FEMALE,
+
+    /**
+     * Represents cases where the gender is not specified or unknown.
+     */
     UNKNOWN // For cases where gender isn't specified
 }
 
+/**
+ * Enum representing the species of a pet.
+ */
 enum class Species {
     AXOLOTL,
     BIRD,
@@ -45,7 +63,9 @@ enum class Species {
     TURTLE,
     UNKNOWN
 }
-
+/**
+ * Represents a pet with various attributes such as name, species, and health details.
+ */
 data class Pet(
     var iconUri: String? = null,
     var id: String = "",
@@ -64,14 +84,30 @@ data class Pet(
     var healthHistory: MutableList<String> = mutableListOf(),
     val ownerId: String = ""
 ) {
+
+    /**
+     * Adds a feeding time to the pet's feeding schedule.
+     *
+     * @param time The feeding time to add.
+     */
     fun addFeedingTime(time: String) {
         feedingTime.add(time)
     }
 
+    /**
+     * Adds a watering time to the pet's watering schedule.
+     *
+     * @param time The watering time to add.
+     */
     fun addWaterTime(time: String) {
         waterTime.add(time)
     }
 
+    /**
+     * Adds a health note and updates the health history.
+     *
+     * @param note The health note to add.
+     */
     fun addHealthNote(note: String) {
         healthNotes += "$note\n"
         healthHistory.add(note)

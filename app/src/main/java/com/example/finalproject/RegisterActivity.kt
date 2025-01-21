@@ -14,7 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.finalproject.firebase.Pet
 import kotlinx.coroutines.launch
 
-
+/**
+ * RegisterActivity handles user registration by validating input, creating a new user in Firebase Authentication,
+ * and saving user data to Firestore. It allows the user to register with their email, password, and username.
+ */
 class RegisterActivity : BaseActivity() {
 
     private var inputUserName: EditText? = null
@@ -23,7 +26,10 @@ class RegisterActivity : BaseActivity() {
     private var inputPasswordRepeat: EditText? = null
     private var registerButton: Button? = null
 
-
+    /**
+     * This method is called when the activity is created. It sets up the UI elements, initializes input fields,
+     * and sets up click listeners for the registration button and the back button.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -50,6 +56,12 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Validates the registration details entered by the user.
+     * Checks if all fields are filled correctly and if the password and confirmation match.
+     *
+     * @return true if all validation checks pass, false otherwise.
+     */
     private fun validateRegisterDetails(): Boolean {
         return when {
 
@@ -85,7 +97,12 @@ class RegisterActivity : BaseActivity() {
     }
 
 
-
+    /**
+     * Registers the user by creating an account with the provided email and password.
+     * If registration is successful, the user data is saved to Firestore.
+     *
+     * This method handles Firebase Authentication and Firestore database operations.
+     */
     private fun registerUser() {
         if (validateRegisterDetails()) {
             val email = inputEmail?.text.toString().trim { it <= ' ' }

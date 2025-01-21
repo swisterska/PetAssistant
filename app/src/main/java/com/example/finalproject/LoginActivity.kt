@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 /**
  * Activity responsible for handling user login using Firebase Authentication.
+ * It validates user credentials, performs sign-in, and navigates to the next activity upon success.
  */
 class LoginActivity : BaseActivity() {
 
@@ -17,6 +18,12 @@ class LoginActivity : BaseActivity() {
     private var inputPassword: EditText? = null
     private var loginButton: Button? = null
 
+    /**
+     * Called when the activity is first created.
+     * Sets up UI components and their interactions.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state, if any.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -43,7 +50,9 @@ class LoginActivity : BaseActivity() {
 
     /**
      * Validates the login details entered by the user.
-     * @return True if the details are valid, otherwise False.
+     * Ensures that email and password fields are not empty.
+     *
+     * @return True if both email and password are valid, otherwise False.
      */
     private fun validateLoginDetails(): Boolean {
         val email = inputEmail?.text.toString().trim { it <= ' ' }
@@ -66,7 +75,9 @@ class LoginActivity : BaseActivity() {
     }
 
     /**
-     * Logs in a registered user using Firebase Authentication.
+     * Attempts to log in the registered user using Firebase Authentication.
+     * On success, navigates to the ChooseYourPetActivity.
+     * On failure, displays an error message using a Snackbar.
      */
     private fun logInRegisteredUser() {
         if (validateLoginDetails()) {
@@ -88,7 +99,8 @@ class LoginActivity : BaseActivity() {
     }
 
     /**
-     * Navigates to the main activity after successful login and passes the user's UID to the main activity.
+     * Navigates to the ChooseYourPetActivity after successful login.
+     * Passes the user's email as an extra in the intent.
      */
     open fun goToChooseYourPetActivity() {
         val user = FirebaseAuth.getInstance().currentUser
