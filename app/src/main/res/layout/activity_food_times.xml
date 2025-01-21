@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:fontFamily="@font/glikerblackfont"
-        android:text="Set timestamps for water notifications"
+        android:text="Set timestamps for food notifications"
         android:textColor="@color/black"
         android:textSize="25sp"
         android:ellipsize="none"
