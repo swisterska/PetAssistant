@@ -62,7 +62,7 @@ class RegisterPetActivity : AppCompatActivity() {
         speciesSpinner = findViewById(R.id.speciesInput)
         breedInput = findViewById(R.id.breedInput)
         cityInput = findViewById(R.id.cityInput)
-        weightInput = findViewById(R.id.weightInput)
+        weightInput = findViewById(R.id.weightValue)
         genderSpinner = findViewById(R.id.genderSpinner)
         allergiesInput = findViewById(R.id.allergiesInput)
         allergiesInput.movementMethod = ScrollingMovementMethod()

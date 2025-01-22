@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_blue">#A7D3E9</color>
     <color name="dark_blue">#1D385B</color>
+    <color name="red">#E01633</color>
 
     <color name="colorSnackBarSuccess">#04F630</color>
     <color name="colorSnackBarError">#F41707</color>
