@@ -14,9 +14,9 @@ import com.google.firebase.auth.FirebaseAuth
  */
 class LoginActivity : BaseActivity() {
 
-    private var inputEmail: EditText? = null
-    private var inputPassword: EditText? = null
-    private var loginButton: Button? = null
+    private lateinit var inputEmail: EditText
+    private lateinit var inputPassword: EditText
+    private lateinit var loginButton: Button
 
     /**
      * Called when the activity is first created.
