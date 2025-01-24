@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import com.google.firebase.Timestamp
+
 
 /**
  * Enum representing the gender of a pet.
@@ -78,8 +80,9 @@ data class Pet(
     var weight: Double,
     var city: String = "",
     var gender: Gender = Gender.UNKNOWN,
-    var feedingTime: MutableList<String> = mutableListOf(),
-    var waterTime: MutableList<String> = mutableListOf(),
+    var feedingTime: MutableList<Timestamp> = mutableListOf(),
+    var waterTime: MutableList<Timestamp> = mutableListOf(),
+    var symptoms: MutableList<String> = mutableListOf(),
     var healthNotes: String = "",
     var healthHistory: MutableList<String> = mutableListOf(),
     val ownerId: String = ""
@@ -88,19 +91,22 @@ data class Pet(
     /**
      * Adds a feeding time to the pet's feeding schedule.
      *
-     * @param time The feeding time to add.
+     * @param timeMillis The feeding time in milliseconds (e.g., System.currentTimeMillis()).
      */
-    fun addFeedingTime(time: String) {
-        feedingTime.add(time)
+    fun addFeedingTime(timeMillis: Long) {
+        val timestamp =
+            com.google.firebase.Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
+        feedingTime.add(timestamp)
     }
 
     /**
      * Adds a watering time to the pet's watering schedule.
      *
-     * @param time The watering time to add.
+     * @param timeMillis The watering time in milliseconds.
      */
-    fun addWaterTime(time: String) {
-        waterTime.add(time)
+    fun addWaterTime(timeMillis: Long) {
+        val timestamp = Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
+        waterTime.add(timestamp)
     }
 
     /**
@@ -136,8 +142,8 @@ data class Pet(
                     }
                 } ?: Species.UNKNOWN, // Ensure a non-null fallback
 
-                feedingTime = (data["feedingTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
-                waterTime = (data["waterTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
+                feedingTime = (data["feedingTime"] as? List<Timestamp>)?.toMutableList() ?: mutableListOf(),
+                waterTime = (data["waterTime"] as? List<Timestamp>)?.toMutableList() ?: mutableListOf(),
                 healthNotes = data["healthNotes"] as? String ?: "",
                 healthHistory = (data["healthHistory"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 ownerId = data["ownerId"] as? String ?: "",

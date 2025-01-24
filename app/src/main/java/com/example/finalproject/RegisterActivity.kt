@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.finalproject.firebase.FirestoreClass
+import com.example.finalproject.firebase.Pet
 import com.example.finalproject.firebase.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -89,7 +90,7 @@ class RegisterActivity : BaseActivity() {
                             id = firebaseUser.uid,
                             username = name,
                             email = email,
-                            pets = emptyList()
+                            pets = mutableListOf()
                         )
 
                         lifecycleScope.launch(Dispatchers.IO) {

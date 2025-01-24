@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -13,6 +14,10 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
 /**
@@ -107,6 +112,29 @@ class FoodTimesActivity : AppCompatActivity() {
         println("Scheduled $reminderType Notification at: ${calendar.time}")
     }
 
+    /**
+     * Saves the selected feeding time to Firestore under the current user's pet.
+     */
+    private fun saveFeedingTimeToFirestore(calendar: Calendar) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("pets")  // assuming the pet data is saved here
+            .document("petId")  // Replace with actual pet ID
+
+        // Convert the calendar to a Timestamp for Firestore
+        val feedingTime = Timestamp(calendar.time)
+
+        // Update the feeding time list in Firestore
+        dbRef.update("feedingTime", FieldValue.arrayUnion(feedingTime))
+            .addOnSuccessListener {
+                Log.d("Firestore", "Feeding time added successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error adding feeding time", e)
+            }
+    }
 
     /**
      * Updates the TextView with the list of scheduled feeding times.

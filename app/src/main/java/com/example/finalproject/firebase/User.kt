@@ -15,7 +15,7 @@ data class User(
     val id: String = "",
     val username: String? = null,
     val email: String = "",
-    val pets: List<Pet> = emptyList() // Default to an empty list
+    val pets: MutableList<Pet> = mutableListOf()
 ) {
     companion object {
         /**
@@ -30,9 +30,9 @@ data class User(
                 id = data["id"] as? String ?: "",
                 username = data["username"] as? String,
                 email = data["email"] as? String ?: "",
-                pets = (data["pets"] as? List<Map<String, Any?>>)?.map {
+                pets = (data["pets"] as? List<Map<String, Any?>>)?.mapNotNull {
                     Pet.fromMap(it)
-                } ?: listOf()
+                }?.toMutableList() ?: mutableListOf() // Ensure pets is mutable
             )
         }
 
@@ -56,7 +56,7 @@ data class User(
          * @return A new User object with the modified pet list.
          */
         fun updatePet(user: User, updatedPet: Pet): User {
-            val updatedPets = user.pets.map { if (it.id == updatedPet.id) updatedPet else it }
+            val updatedPets = user.pets.map { if (it.id == updatedPet.id) updatedPet else it }.toMutableList()
             return user.copy(pets = updatedPets)
         }
 
@@ -68,7 +68,7 @@ data class User(
          * @return A new User object with the updated list of pets.
          */
         fun removePet(user: User, petId: String): User {
-            val updatedPets = user.pets.filter { it.id != petId }
+            val updatedPets = user.pets.filter { it.id != petId }.toMutableList()
             return user.copy(pets = updatedPets)
         }
     }

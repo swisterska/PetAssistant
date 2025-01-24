@@ -3,11 +3,11 @@ package com.example.finalproject
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -19,6 +19,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.time.LocalDate
 import java.util.*
+import com.google.firebase.auth.FirebaseAuth
+
 
 /**
  * RegisterPetActivity handles the process of registering a new pet by allowing the user to input pet details,
@@ -35,8 +37,10 @@ class RegisterPetActivity : AppCompatActivity() {
     private lateinit var allergiesInput: EditText
     private lateinit var diseasesInput: EditText
     private lateinit var dobInput: EditText
-    private lateinit var registerPetBtn: ImageButton
+    private lateinit var registerPetBtn: Button
     private lateinit var selectIconBtn: ImageButton
+    private var selectedButton: ImageButton? = null
+
 
     private var iconUri: Uri? = null
     private var selectedIconResId: Int? = null
@@ -62,7 +66,7 @@ class RegisterPetActivity : AppCompatActivity() {
         speciesSpinner = findViewById(R.id.speciesInput)
         breedInput = findViewById(R.id.breedInput)
         cityInput = findViewById(R.id.cityInput)
-        weightInput = findViewById(R.id.weightValue)
+        weightInput = findViewById(R.id.weightInput)
         genderSpinner = findViewById(R.id.genderSpinner)
         allergiesInput = findViewById(R.id.allergiesInput)
         allergiesInput.movementMethod = ScrollingMovementMethod()
@@ -98,11 +102,28 @@ class RegisterPetActivity : AppCompatActivity() {
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = genderAdapter
 
+        val dogButton = findViewById<ImageButton>(R.id.DogButton)
+        val catButton = findViewById<ImageButton>(R.id.caticon)
+        val rabbitButton = findViewById<ImageButton>(R.id.rabbiticon)
+        val snakeButton = findViewById<ImageButton>(R.id.snakeicon)
+        val selectIconBtn = findViewById<ImageButton>(R.id.selectIconBtn)
+
+        val iconButtons = listOf(dogButton, catButton, rabbitButton, snakeButton, selectIconBtn)
+
+        for (button in iconButtons) {
+            button.setOnClickListener {
+                selectedButton?.isSelected = false  // Deselect previous button
+                button.isSelected = true  // Select current button
+                selectedButton = button  // Update selected button
+            }
+        }
+
         selectIconBtn.setOnClickListener { openGallery() }
 
         dobInput.setOnClickListener { showDatePickerDialog() }
 
         registerPetBtn.setOnClickListener {
+            Log.d("RegisterPetActivity", "Register button clicked")
             val pet = collectPetData()
             if (pet != null && validateInput(pet)) {
                 savePetToFirebase(pet)
@@ -127,33 +148,39 @@ class RegisterPetActivity : AppCompatActivity() {
      * @return Pet object or null if data collection fails.
      */
     private fun collectPetData(): Pet? {
-        val name = petNameInput.text.toString().trim()
-        // Collect species value (ensure to handle 'UNKNOWN' case if no selection is made)
+        val name = petNameInput.text.toString().trim().takeIf { it.isNotEmpty() }
         val species = try {
             Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())
         } catch (e: IllegalArgumentException) {
-            Species.UNKNOWN // If no valid species is selected, default to 'UNKNOWN'
+            Species.UNKNOWN // Default if no selection is made
         }
-        val breed = breedInput.text.toString().trim()
-        val city = cityInput.text.toString().trim()
-        val weight = weightInput.text.toString().toDoubleOrNull() ?: 0.0
+        val breed = breedInput.text.toString().trim().takeIf { it.isNotEmpty() } // Nullable breed
+        val city = cityInput.text.toString().trim().takeIf { it.isNotEmpty() } // Nullable city
+        val weight = weightInput.text.toString().toDoubleOrNull() // Nullable weight
         val gender = try {
             Gender.valueOf(genderSpinner.selectedItem.toString().uppercase())
         } catch (e: IllegalArgumentException) {
             Gender.UNKNOWN
         }
-        val allergies = allergiesInput.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
-        val diseases = diseasesInput.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+        val allergies = allergiesInput.text.toString()
+            .split(",").map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toMutableList()
+
+        val diseases = diseasesInput.text.toString()
+            .split(",").map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toMutableList()
+
         val iconUriString = iconUri?.toString()
-            ?: "android.resource://$packageName/${selectedIconResId ?: R.drawable.defaulticon}"
 
         return Pet(
             iconUri = iconUriString,
-            name = name,
+            name = name ?: "",  // Name is required
             species = species,
-            breed = breed,
-            city = city,
-            weight = weight,
+            breed = breed ?: "",  // If breed is null, default to an empty string
+            city = city ?: "",
+            weight = weight ?: 0.0, // If weight is null, default to 0.0
             gender = gender,
             allergies = allergies,
             diseases = diseases,
@@ -162,7 +189,7 @@ class RegisterPetActivity : AppCompatActivity() {
     }
 
     /**
-     * Validates the input fields to ensure that the pet's details are correct.
+     * Validates the input fields to ensure the pet's details are correct.
      *
      * @param pet The pet object containing the details to be validated.
      * @return true if the input is valid, false otherwise.
@@ -173,14 +200,9 @@ class RegisterPetActivity : AppCompatActivity() {
             return false
         }
 
-        // Ensure the species is valid and not the default "*Species"
-        if (pet.species.name == "*Species") {
-            Toast.makeText(this, "Please choose a species from the list", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        return true
+        return true // Only name is mandatory; other fields can be null or empty
     }
+
 
     /**
      * Saves the pet data to Firebase. If an icon was selected, it will be uploaded to Firebase Storage.
@@ -207,19 +229,37 @@ class RegisterPetActivity : AppCompatActivity() {
      * @param pet The pet object to be saved.
      */
     private fun savePetDetails(pet: Pet) {
-        val dbRef = FirebaseDatabase.getInstance().reference.child("pets")
-        dbRef.push().setValue(pet).addOnCompleteListener {
-            if (it.isSuccessful) {
-                Toast.makeText(this, "New pet registered successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, ChooseYourPetActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to register pet", Toast.LENGTH_SHORT).show()
+        // Get the currently logged-in user's ID (Firebase Authentication is used)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // Reference to the specific user's "pets" node
+        val dbRef = FirebaseDatabase.getInstance().reference.child("users").child(userId).child("pets")
+
+        // Generate a unique key for the pet inside the user's "pets" array
+        val petKey = dbRef.push().key
+
+        if (petKey != null) {
+            dbRef.child(petKey).setValue(pet).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("RegisterPetActivity", "Pet registered successfully under user: $userId")
+                    Toast.makeText(this, "New pet registered successfully!", Toast.LENGTH_SHORT).show()
+
+                    // Redirect user after successful registration
+                    val intent = Intent(this, ChooseYourPetActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Log.e("RegisterPetActivity", "Failed to register pet: ${task.exception?.message}")
+                    Toast.makeText(this, "Failed to register pet.", Toast.LENGTH_SHORT).show()
+                }
             }
+        } else {
+            Log.e("RegisterPetActivity", "Failed to generate pet key.")
+            Toast.makeText(this, "Error generating pet key.", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     /**
      * Displays a DatePicker dialog for the user to select the pet's date of birth.
