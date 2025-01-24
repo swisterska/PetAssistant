@@ -82,11 +82,11 @@ class RegisterPetActivity : AppCompatActivity() {
 
         speciesSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parentView: AdapterView<*>, selectedItemView: View?, position: Int, id: Long) {
-                // No additional handling required here, as we're checking in the validateInput method
+
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>) {
-                // No need to handle this explicitly since we're checking in the validateInput method
+
             }
         })
 

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
@@ -35,6 +36,13 @@ class FoodTimesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_times)
+
+        val returnButton = findViewById<ImageButton>(R.id.GoBackButtonFoodTimes)
+        returnButton.setOnClickListener {
+
+            val intent = Intent(this, MainPageActivity::class.java)
+            startActivity(intent)
+        }
 
 
         // Initialize views

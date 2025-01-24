@@ -58,7 +58,7 @@ class MainPageActivity : AppCompatActivity() {
         val HealthHistoryButton = findViewById<ImageButton>(R.id.HealthHistoryButton)
         HealthHistoryButton.setOnClickListener {
 
-            val intent = Intent(this, HealthInfoView::class.java)
+            val intent = Intent(this, Historyforsymptomsandcare::class.java)
             startActivity(intent)
         }
 

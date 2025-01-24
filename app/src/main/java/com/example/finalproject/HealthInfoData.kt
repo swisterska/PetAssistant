@@ -9,6 +9,6 @@ package com.example.finalproject
  */
 data class HealthInfoData(
     val id: String = "",
-    val text: String ="",
-    val date: String=""
+    val symptom: String = "", // Ensure this matches the Firebase "symptom" property
+    val date: String = ""
 )

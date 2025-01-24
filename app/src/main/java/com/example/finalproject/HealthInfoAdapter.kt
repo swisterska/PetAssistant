@@ -48,15 +48,13 @@ class HealthInfoAdapter(private val itemList: List<HealthInfoData>, private val 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = itemList[position]
 
-
-
         holder.date.text = item.date
-        holder.text.text = item.text
+        holder.text.text = item.symptom // Display the symptom instead of "text"
 
         // Delete button functionality
         holder.btnDelete.setOnClickListener {
             val database = FirebaseDatabase.getInstance().reference
-            database.child("items").child(item.id).removeValue()
+            database.child("symptoms").child(item.id).removeValue() // Delete from the "symptoms" node
             onItemDeleted(item) // Notify about the deletion
         }
     }

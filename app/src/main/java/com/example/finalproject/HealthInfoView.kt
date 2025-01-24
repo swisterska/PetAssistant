@@ -42,15 +42,16 @@ class HealthInfoView : AppCompatActivity() {
                     }
                 }
                 adapter = HealthInfoAdapter(itemList) { deletedItem ->
-                    itemList.remove(deletedItem) // Remove the item locally
-                    adapter.notifyDataSetChanged() // Refresh the RecyclerView
+                    itemList.remove(deletedItem)
+                    adapter.notifyDataSetChanged()
                 }
                 recyclerView.adapter = adapter
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handles errors
+                // Handle database errors here
             }
         })
+
     }
 }
