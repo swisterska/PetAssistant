@@ -1,11 +1,9 @@
 package com.example.finalproject
 
-import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
@@ -15,7 +13,6 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import java.util.Calendar
 
 /**
@@ -50,6 +47,13 @@ class FoodTimesActivity : AppCompatActivity() {
         setTimeButton = findViewById(R.id.setTimeFoodNotif)
         timestampsTextView = findViewById(R.id.timestampsTextView)
 
+        // Go back button functionality
+        val goBackButton: ImageButton = findViewById(R.id.GoBackButtonFoodTimes)
+        goBackButton.setOnClickListener {
+            val intent = Intent(this, MainPageActivity::class.java)
+            startActivity(intent)
+        }
+
         setTimeButton.setOnClickListener {
             // Get the selected time from the TimePicker
             val hour = timePicker.hour // API 23 and above (for API 23+)
@@ -69,7 +73,7 @@ class FoodTimesActivity : AppCompatActivity() {
             Toast.makeText(this, "Time Set: $selectedTime", Toast.LENGTH_SHORT).show()
 
             // Schedule the alarm for the selected timestamp
-            scheduleNotification(calendar)
+            scheduleNotification(calendar, "Food")
 
             /// Update the TextView to show the set timestamps
             updateTimestampsTextView()
@@ -79,26 +83,30 @@ class FoodTimesActivity : AppCompatActivity() {
      * Schedules a notification to trigger at the specified time.
      *
      * @param calendar The Calendar object representing the scheduled time.
+     * @param reminderType The type of notification
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    private fun scheduleNotification(calendar: Calendar) {
+    private fun scheduleNotification(calendar: Calendar, reminderType: String) {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // Create an Intent to trigger the notification
-        val intent = Intent(this, NotificationReceiver::class.java)
+        val intent = Intent(this, NotificationReceiver::class.java).apply {
+            putExtra("REMINDER_TYPE", reminderType) // Pass either "Food" or "Water"
+        }
 
-        // Use the timestamp to generate a unique request code for each alarm
-        val requestCode = calendar.timeInMillis.toInt() // Unique identifier based on the time
+        val requestCode = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
 
-        // Create a PendingIntent that will trigger the NotificationReceiver
-        val pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-        // Set the alarm to trigger at the scheduled time
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
 
-        // Log for debugging purposes
-        println("Scheduled Notification at: ${calendar.time}")
+        println("Scheduled $reminderType Notification at: ${calendar.time}")
     }
+
 
     /**
      * Updates the TextView with the list of scheduled feeding times.

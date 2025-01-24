@@ -34,7 +34,7 @@
 
     <!-- TextView below the ImageButton -->
     <TextView
-        android:id="@+id/FoodTimesText"
+        android:id="@+id/WaterTimesText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -49,7 +49,7 @@
         android:padding="10dp"/>
 
     <TimePicker
-        android:id="@+id/timePickerFood"
+        android:id="@+id/timePickerWater"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -59,7 +59,7 @@
 
     <!-- Button to set the selected time -->
     <Button
-        android:id="@+id/setTimeFoodNotif"
+        android:id="@+id/setTimeWaterNotif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Set Time"
@@ -69,7 +69,7 @@
 
     <!-- TextView to display the set timestamps -->
     <TextView
-        android:id="@+id/timestampsTextView"
+        android:id="@+id/timestampsTextViewW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Your scheduled timestamps will appear here.."

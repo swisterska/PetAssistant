@@ -5,109 +5,76 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.finalproject.firebase.FirestoreClass
 import com.example.finalproject.firebase.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import com.example.finalproject.firebase.Pet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-/**
- * RegisterActivity handles user registration by validating input, creating a new user in Firebase Authentication,
- * and saving user data to Firestore. It allows the user to register with their email, password, and username.
- */
 class RegisterActivity : BaseActivity() {
 
-    private var inputUserName: EditText? = null
-    private var inputEmail: EditText? = null
-    private var inputPassword: EditText? = null
-    private var inputPasswordRepeat: EditText? = null
-    private var registerButton: Button? = null
+    private lateinit var inputUserName: EditText
+    private lateinit var inputEmail: EditText
+    private lateinit var inputPassword: EditText
+    private lateinit var inputPasswordRepeat: EditText
+    private lateinit var registerButton: Button
 
-    /**
-     * This method is called when the activity is created. It sets up the UI elements, initializes input fields,
-     * and sets up click listeners for the registration button and the back button.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
         val returnButton = findViewById<ImageButton>(R.id.GoBackButton)
         returnButton.setOnClickListener {
-
-            val intent = Intent(this, LogRegActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LogRegActivity::class.java))
         }
 
-
-        // Initialize input fields and the registration button
+        // Initialize UI elements
         inputUserName = findViewById(R.id.usernameTextEdit)
         inputEmail = findViewById(R.id.emailTextEdit)
         inputPassword = findViewById(R.id.passwordTextEdit)
         inputPasswordRepeat = findViewById(R.id.confirmPasswordTextEdit)
         registerButton = findViewById(R.id.RegisterButton)
 
-
-        // Set a click listener for the registration button
-        registerButton?.setOnClickListener {
+        registerButton.setOnClickListener {
             registerUser()
         }
     }
 
-    /**
-     * Validates the registration details entered by the user.
-     * Checks if all fields are filled correctly and if the password and confirmation match.
-     *
-     * @return true if all validation checks pass, false otherwise.
-     */
     private fun validateRegisterDetails(): Boolean {
         return when {
-
-            inputUserName?.text.toString().trim { it <= ' ' }.isEmpty() -> {
+            inputUserName.text.trim().isEmpty() -> {
                 showErrorSnackBar(getString(R.string.err_msg_enter_username), true)
                 false
             }
-
-            inputEmail?.text.toString().trim { it <= ' ' }.isEmpty() -> {
+            inputEmail.text.trim().isEmpty() -> {
                 showErrorSnackBar(getString(R.string.err_msg_enter_email), true)
                 false
             }
-
-
-            inputPassword?.text.toString().trim { it <= ' ' }.isEmpty() -> {
+            inputPassword.text.trim().isEmpty() -> {
                 showErrorSnackBar(getString(R.string.err_msg_enter_password), true)
                 false
             }
-
-            inputPasswordRepeat?.text.toString().trim { it <= ' ' }.isEmpty() -> {
+            inputPasswordRepeat.text.trim().isEmpty() -> {
                 showErrorSnackBar(getString(R.string.err_msg_enter_confpassword), true)
                 false
             }
-
-            inputPassword?.text.toString().trim { it <= ' ' } != inputPasswordRepeat?.text.toString()
-                .trim { it <= ' ' } -> {
+            inputPassword.text.toString() != inputPasswordRepeat.text.toString() -> {
                 showErrorSnackBar(getString(R.string.err_msg_password_mismatch), true)
                 false
             }
-
             else -> true
         }
     }
 
-
-    /**
-     * Registers the user by creating an account with the provided email and password.
-     * If registration is successful, the user data is saved to Firestore.
-     *
-     * This method handles Firebase Authentication and Firestore database operations.
-     */
     private fun registerUser() {
         if (validateRegisterDetails()) {
-            val email = inputEmail?.text.toString().trim { it <= ' ' }
-            val password = inputPassword?.text.toString().trim { it <= ' ' }
-            val name = inputUserName?.text.toString().trim { it <= ' ' }
+            val email = inputEmail.text.toString().trim()
+            val password = inputPassword.text.toString().trim()
+            val name = inputUserName.text.toString().trim()
 
             FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -125,24 +92,26 @@ class RegisterActivity : BaseActivity() {
                             pets = emptyList()
                         )
 
-
-                        lifecycleScope.launch {
+                        lifecycleScope.launch(Dispatchers.IO) {
                             try {
                                 val firestoreClass = FirestoreClass()
                                 firestoreClass.registerOrUpdateUser(user)
-                                Toast.makeText(this@RegisterActivity, "Data saved successfully!", Toast.LENGTH_SHORT).show()
+
+                                // Switch back to the main thread to update UI
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(this@RegisterActivity, "Data saved successfully!", Toast.LENGTH_SHORT).show()
+                                    finish()
+                                }
                             } catch (e: Exception) {
-                                Toast.makeText(this@RegisterActivity, "Failed to save data: ${e.message}", Toast.LENGTH_SHORT).show()
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(this@RegisterActivity, "Failed to save data: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
-
-                        //FirebaseAuth.getInstance().signOut()
-                        finish()
                     } else {
-                        showErrorSnackBar(task.exception!!.message.toString(), true)
+                        showErrorSnackBar(task.exception?.message ?: "Registration failed", true)
                     }
                 }
         }
     }
-
 }
