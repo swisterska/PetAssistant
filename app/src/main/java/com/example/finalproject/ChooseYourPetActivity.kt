@@ -66,16 +66,14 @@ class ChooseYourPetActivity : AppCompatActivity() {
         petsCollectionRef.get()
             .addOnSuccessListener { querySnapshot ->
                 petsList.clear()
-                Log.d("ChooseYourPetActivity", "Pets retrieved: ${querySnapshot.size()} items")
-
                 for (document in querySnapshot) {
                     val pet = document.toObject(Pet::class.java)
-                    pet.id = document.id  // Ensure Firestore document ID is stored
+                    pet.id = document.id
                     petsList.add(pet)
-                    Log.d("ChooseYourPetActivity", "Pet added: ${pet.name}, ID: ${pet.id}")
                 }
-                petAdapter.notifyDataSetChanged()
+                petAdapter.notifyDataSetChanged()  // Ensure RecyclerView is notified of changes
             }
+
             .addOnFailureListener { exception ->
                 Log.e("ChooseYourPetActivity", "Error loading pets: ${exception.message}")
                 Toast.makeText(this, "Failed to load pets", Toast.LENGTH_SHORT).show()

@@ -8,6 +8,7 @@
     <string name="register_success">You are registered succesfully</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="goback"></string>
+    <string name="pet_image" />
 
 
 </resources>

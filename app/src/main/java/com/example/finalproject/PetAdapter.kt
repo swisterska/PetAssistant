@@ -14,7 +14,8 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
     RecyclerView.Adapter<PetAdapter.PetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PetViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_pet, parent, false)
+        // Inflate the new layout: item_choose_pet_recycler.xml
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_choose_pet_recycler, parent, false)
         Log.d("PetAdapter", "ViewHolder created")
         return PetViewHolder(view)
     }
@@ -43,7 +44,7 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
             if (!pet.iconUri.isNullOrEmpty()) {
                 Log.d("PetAdapter", "Loading image for ${pet.name} from ${pet.iconUri}")
                 Glide.with(itemView.context)
-                    .load(pet.iconUri)
+                    .load(pet.iconUri)  // Ensure this contains a valid URL
                     .placeholder(R.drawable.dogicon)
                     .error(R.drawable.dogicon)
                     .into(petIcon)
