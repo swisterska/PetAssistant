@@ -86,7 +86,11 @@ data class Pet(
     var healthNotes: String = "",
     var healthHistory: MutableList<String> = mutableListOf(),
     val ownerId: String = ""
-) {
+)
+
+
+
+{
 
     /**
      * Adds a feeding time to the pet's feeding schedule.
@@ -175,3 +179,5 @@ data class Pet(
         }
     }
 }
+
+

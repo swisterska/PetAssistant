@@ -82,7 +82,14 @@ class FoodTimesActivity : AppCompatActivity() {
 
             /// Update the TextView to show the set timestamps
             updateTimestampsTextView()
+
+            // Save the feeding time to Firestore
+            saveFeedingTimeToFirestore(calendar)
         }
+
+        // Load the existing feeding times from Firestore if the user is logged in
+        loadFeedingTimesFromFirestore()
+
     }
     /**
      * Schedules a notification to trigger at the specified time.
@@ -135,6 +142,37 @@ class FoodTimesActivity : AppCompatActivity() {
                 Log.e("Firestore", "Error adding feeding time", e)
             }
     }
+
+    private fun loadFeedingTimesFromFirestore() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("pets")  // Assuming the pet data is saved here
+            .document("petId")  // Replace with actual pet ID
+
+        dbRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val feedingTimes = document.get("feedingTime") as? List<Timestamp> ?: emptyList()
+
+                    // Convert Firestore Timestamps to Calendar objects
+                    feedingTimes.forEach { timestamp ->
+                        val calendar = Calendar.getInstance().apply {
+                            time = timestamp.toDate() // Convert Timestamp to Date and set in Calendar
+                        }
+                        timestamps.add(calendar)
+                    }
+
+                    // Update the TextView to show the retrieved timestamps
+                    updateTimestampsTextView()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error getting feeding times", e)
+            }
+    }
+
 
     /**
      * Updates the TextView with the list of scheduled feeding times.

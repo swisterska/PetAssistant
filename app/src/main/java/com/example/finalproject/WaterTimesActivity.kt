@@ -75,7 +75,13 @@ class WaterTimesActivity : AppCompatActivity() {
 
             /// Update the TextView to show the set timestamps
             updateTimestampsTextView()
+
+            // Save the feeding time to Firestore
+            saveWaterChangeTimeToFirestore(calendar)
         }
+
+        // Load the existing water change times from Firestore if the user is logged in
+        loadWaterTimesFromFirestore()
     }
     /**
      * Schedules a notification to trigger at the specified time.
@@ -125,6 +131,36 @@ class WaterTimesActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error adding water change time", e)
+            }
+    }
+
+    private fun loadWaterTimesFromFirestore() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("pets")  // Assuming the pet data is saved here
+            .document("petId")  // Replace with actual pet ID
+
+        dbRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val waterTimes = document.get("waterChangeTime") as? List<Timestamp> ?: emptyList()
+
+                    // Convert Firestore Timestamps to Calendar objects
+                    waterTimes.forEach { timestamp ->
+                        val calendar = Calendar.getInstance().apply {
+                            time = timestamp.toDate() // Convert Timestamp to Date and set in Calendar
+                        }
+                        timestampsW.add(calendar)
+                    }
+
+                    // Update the TextView to show the retrieved timestamps
+                    updateTimestampsTextView()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error getting water change times", e)
             }
     }
 
