@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 
 
 /**
@@ -72,7 +73,7 @@ data class Pet(
     var iconUri: String? = null,
     var id: String = "",
     var name: String = "",
-    var dob: LocalDate? = null,
+    var dob: String? = null,
     var species: Species = Species.UNKNOWN,
     var breed: String = "",
     var allergies: MutableList<String> = mutableListOf(),
@@ -80,48 +81,69 @@ data class Pet(
     var weight: Double,
     var city: String = "",
     var gender: Gender = Gender.UNKNOWN,
-    var feedingTime: MutableList<Timestamp> = mutableListOf(),
-    var waterTime: MutableList<Timestamp> = mutableListOf(),
+    var feedingTime: MutableList<String> = mutableListOf(),
+    var waterTime: MutableList<String> = mutableListOf(),
     var symptoms: MutableList<String> = mutableListOf(),
     var healthNotes: String = "",
     var healthHistory: MutableList<String> = mutableListOf(),
     val ownerId: String = ""
 )
-
-
-
 {
+    // No-argument constructor
+    constructor() : this(
+        iconUri = null,
+        id = "",
+        name = "",
+        dob = null,
+        species = Species.UNKNOWN,
+        breed = "",
+        allergies = mutableListOf(),
+        diseases = mutableListOf(),
+        weight = 0.0,
+        city = "",
+        gender = Gender.UNKNOWN,
+        feedingTime = mutableListOf(),
+        waterTime = mutableListOf(),
+        symptoms = mutableListOf(),
+        healthNotes = "",
+        healthHistory = mutableListOf(),
+        ownerId = ""
+    )
+
+
+
+
 
     /**
      * Adds a feeding time to the pet's feeding schedule.
      *
      * @param timeMillis The feeding time in milliseconds (e.g., System.currentTimeMillis()).
      */
-    fun addFeedingTime(timeMillis: Long) {
-        val timestamp =
-            com.google.firebase.Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
-        feedingTime.add(timestamp)
-    }
+//    fun addFeedingTime(timeMillis: Long) {
+//        val timestamp =
+//            com.google.firebase.Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
+//        feedingTime.add(timestamp)
+//    }
 
     /**
      * Adds a watering time to the pet's watering schedule.
      *
      * @param timeMillis The watering time in milliseconds.
      */
-    fun addWaterTime(timeMillis: Long) {
-        val timestamp = Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
-        waterTime.add(timestamp)
-    }
+//    fun addWaterTime(timeMillis: Long) {
+//        val timestamp = Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
+//        waterTime.add(timestamp)
+//    }
 
     /**
      * Adds a health note and updates the health history.
      *
      * @param note The health note to add.
      */
-    fun addHealthNote(note: String) {
-        healthNotes += "$note\n"
-        healthHistory.add(note)
-    }
+//    fun addHealthNote(note: String) {
+//        healthNotes += "$note\n"
+//        healthHistory.add(note)
+//    }
 
     companion object {
         /**
@@ -146,21 +168,13 @@ data class Pet(
                     }
                 } ?: Species.UNKNOWN, // Ensure a non-null fallback
 
-                feedingTime = (data["feedingTime"] as? List<Timestamp>)?.toMutableList() ?: mutableListOf(),
-                waterTime = (data["waterTime"] as? List<Timestamp>)?.toMutableList() ?: mutableListOf(),
+                feedingTime = (data["feedingTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
+                waterTime = (data["waterTime"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 healthNotes = data["healthNotes"] as? String ?: "",
                 healthHistory = (data["healthHistory"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 ownerId = data["ownerId"] as? String ?: "",
                 iconUri = data["iconUri"] as? String,
-
-                dob = (data["dob"] as? String)?.let {
-                    try {
-                        LocalDate.parse(it, formatter) // Use a predefined formatter for date parsing
-                    } catch (e: DateTimeParseException) {
-                        null // Return null if parsing fails
-                    }
-                },
-
+                dob = data["dob"] as? String,
                 breed = data["breed"] as? String ?: "",
                 allergies = (data["allergies"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 diseases = (data["diseases"] as? List<String>)?.toMutableList() ?: mutableListOf(),

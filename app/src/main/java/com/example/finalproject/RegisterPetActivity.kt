@@ -20,6 +20,7 @@ import java.time.LocalDate
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -149,6 +150,7 @@ class RegisterPetActivity : AppCompatActivity() {
      *
      * @return Pet object or null if data collection fails.
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun collectPetData(): Pet? {
         val name = petNameInput.text.toString().trim().takeIf { it.isNotEmpty() }
         val species = try {
@@ -174,22 +176,28 @@ class RegisterPetActivity : AppCompatActivity() {
             .filter { it.isNotEmpty() }
             .toMutableList()
 
-        val iconUriString = iconUri?.toString()
+        val iconUriString = iconUri?.toString() // Null if no icon was selected.
+
+        val dobString = selectedDob?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+
+
 
         // Add logging to verify the collected data
         Log.d("RegisterPetActivity", "Collected Pet Data: Name=$name, Species=$species, Breed=$breed, City=$city, Weight=$weight, Gender=$gender")
 
         return Pet(
-            iconUri = iconUriString,
-            name = name ?: "",  // Name is required
-            species = species,
-            breed = breed ?: "",
-            city = city ?: "",
-            weight = weight ?: 0.0, // If weight is null, default to 0.0
-            gender = gender,
-            allergies = allergies,
-            diseases = diseases,
-            dob = selectedDob
+            iconUri.toString(),
+            "",
+            name ?: "",
+            dobString,
+            species,
+            breed ?: "",
+            allergies,
+            diseases,
+            weight ?: 0.0,
+            city ?: "",
+            gender
         )
     }
 
@@ -267,10 +275,7 @@ class RegisterPetActivity : AppCompatActivity() {
                 Toast.makeText(this, "New pet registered successfully!", Toast.LENGTH_SHORT).show()
 
                 // Redirect user after successful registration
-                val intent = Intent(this, ChooseYourPetActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                finish()
+                goToMainPageActivity(petId = petRef.id)
             } else {
                 Log.e("RegisterPetActivity", "Failed to register pet: ${task.exception?.message}")
                 Toast.makeText(this, "Failed to register pet.", Toast.LENGTH_SHORT).show()
@@ -315,4 +320,22 @@ class RegisterPetActivity : AppCompatActivity() {
             selectedIconResId = null
         }
     }
+
+    /**
+     * Navigates to the MainPageActivity after successful pet registration.
+     * Passes the user's email and the registered pet's ID as extras.
+     */
+    open fun goToMainPageActivity(petId: String) {
+        val user = FirebaseAuth.getInstance().currentUser
+        val email = user?.email.orEmpty()
+
+        val intent = Intent(this, MainPageActivity::class.java).apply {
+            putExtra("uID", email) // Pass user email
+            putExtra("petId", petId) // Pass petId
+        }
+        startActivity(intent)
+        finish() // Close current activity to prevent going back
+    }
+
 }
+

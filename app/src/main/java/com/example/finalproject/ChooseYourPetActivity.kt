@@ -22,8 +22,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_choose_your_pet)
         Log.d("ChooseYourPetActivity", "onCreate started")
+
+        setContentView(R.layout.activity_choose_your_pet)
 
         // Initialize the RecyclerView
         petsRecyclerView = findViewById(R.id.petsRecyclerView)
@@ -47,7 +48,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
         loadPets()
 
         // Set up the "Add New Pet" button
-        addNewPetButton = findViewById(R.id.AddNewPetButton)
+        addNewPetButton = findViewById(R.id.addNewPetButton)
         addNewPetButton.setOnClickListener {
             Log.d("ChooseYourPetActivity", "Add New Pet button clicked")
             val intent = Intent(this, RegisterPetActivity::class.java)

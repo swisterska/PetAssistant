@@ -18,7 +18,9 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 /**
  * Activity for setting feeding times for pets and scheduling notifications.
@@ -28,7 +30,7 @@ class FoodTimesActivity : AppCompatActivity() {
     private lateinit var timePicker: TimePicker
     private lateinit var setTimeButton: Button
     private lateinit var timestampsTextView: TextView
-    private val timestamps = mutableListOf<Calendar>()
+    private val timestamps = mutableListOf<String>()
 
     /**
      * Called when the activity is created. Initializes the UI components and sets up event listeners.
@@ -39,13 +41,7 @@ class FoodTimesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_times)
 
-        val returnButton = findViewById<ImageButton>(R.id.GoBackButtonFoodTimes)
-        returnButton.setOnClickListener {
-
-            val intent = Intent(this, MainPageActivity::class.java)
-            startActivity(intent)
-        }
-
+        val petId = intent.getStringExtra("petId")
 
         // Initialize views
         timePicker = findViewById(R.id.timePickerFood)
@@ -56,6 +52,7 @@ class FoodTimesActivity : AppCompatActivity() {
         val goBackButton: ImageButton = findViewById(R.id.GoBackButtonFoodTimes)
         goBackButton.setOnClickListener {
             val intent = Intent(this, MainPageActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -71,7 +68,9 @@ class FoodTimesActivity : AppCompatActivity() {
                 set(Calendar.SECOND, 0)
             }
 
-            timestamps.add(calendar)
+            // Format the time to string (HH:mm format)
+            val timeString = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
+            timestamps.add(timeString)
 
             // Show the selected time in a Toast
             val selectedTime = String.format("%02d:%02d", hour, minute)
@@ -84,11 +83,15 @@ class FoodTimesActivity : AppCompatActivity() {
             updateTimestampsTextView()
 
             // Save the feeding time to Firestore
-            saveFeedingTimeToFirestore(calendar)
+            if (petId != null) {
+                saveFeedingTimeToFirestore(petId, timeString)
+            }
         }
 
         // Load the existing feeding times from Firestore if the user is logged in
-        loadFeedingTimesFromFirestore()
+        if (petId != null) {
+            loadFeedingTimesFromFirestore(petId)
+        }
 
     }
     /**
@@ -120,48 +123,50 @@ class FoodTimesActivity : AppCompatActivity() {
     }
 
     /**
-     * Saves the selected feeding time to Firestore under the current user's pet.
-     */
-    private fun saveFeedingTimeToFirestore(calendar: Calendar) {
+    * Saves the selected feeding time to Firestore under the current user's pet.
+    */
+    private fun saveFeedingTimeToFirestore(petID: String, timeString: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
-            .collection("pets")  // assuming the pet data is saved here
-            .document("petId")  // Replace with actual pet ID
+            .collection("pets")
+            .document(petID)  // Use the petID passed to this function
 
-        // Convert the calendar to a Timestamp for Firestore
-        val feedingTime = Timestamp(calendar.time)
-
-        // Update the feeding time list in Firestore
-        dbRef.update("feedingTime", FieldValue.arrayUnion(feedingTime))
+        // Update the feeding time list in Firestore (store as String)
+        dbRef.update("feedingTime", FieldValue.arrayUnion(timeString))
             .addOnSuccessListener {
-                Log.d("Firestore", "Feeding time added successfully")
+                Log.d("Firestore", "Feeding time added successfully for pet $petID")
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error adding feeding time", e)
+                Log.e("Firestore", "Error adding feeding time for pet $petID", e)
             }
     }
 
-    private fun loadFeedingTimesFromFirestore() {
+
+    private fun loadFeedingTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
-            .collection("pets")  // Assuming the pet data is saved here
-            .document("petId")  // Replace with actual pet ID
+            .collection("pets")
+            .document(petID)  // Use the petID passed to the function
 
         dbRef.get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val feedingTimes = document.get("feedingTime") as? List<Timestamp> ?: emptyList()
+                    val feedingTimes = document.get("feedingTime") as? List<String> ?: emptyList()
 
-                    // Convert Firestore Timestamps to Calendar objects
-                    feedingTimes.forEach { timestamp ->
-                        val calendar = Calendar.getInstance().apply {
-                            time = timestamp.toDate() // Convert Timestamp to Date and set in Calendar
+                    // Convert Firestore Strings to Calendar objects
+                    feedingTimes.forEach { timeString ->
+                        val calendar = Calendar.getInstance()
+                        try {
+                            val time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(timeString)
+                            calendar.time = time
+                        } catch (e: Exception) {
+                            Log.e("FoodTimesActivity", "Error parsing feeding time string", e)
                         }
-                        timestamps.add(calendar)
+                        timestamps.add(timeString)
                     }
 
                     // Update the TextView to show the retrieved timestamps
@@ -174,16 +179,13 @@ class FoodTimesActivity : AppCompatActivity() {
     }
 
 
+
     /**
      * Updates the TextView with the list of scheduled feeding times.
      */
     private fun updateTimestampsTextView() {
         // Format the timestamps list as a string
-        val timestampsList = timestamps.joinToString("\n") {
-            val hour = it.get(Calendar.HOUR_OF_DAY)
-            val minute = it.get(Calendar.MINUTE)
-            String.format("%02d:%02d", hour, minute)
-        }
+        val timestampsList = timestamps.joinToString("\n")
 
         // Update the TextView with the formatted string
         timestampsTextView.text = "Scheduled Times:\n$timestampsList"

@@ -18,7 +18,9 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 /**
  * Activity for setting water change times for pets and scheduling notifications.
@@ -28,7 +30,7 @@ class WaterTimesActivity : AppCompatActivity() {
     private lateinit var timePickerW: TimePicker
     private lateinit var setTimeButtonW: Button
     private lateinit var timestampsTextViewW: TextView
-    private val timestampsW = mutableListOf<Calendar>()
+    private val timestampsW = mutableListOf<String>()
 
     /**
      * Called when the activity is created. Initializes the UI components and sets up event listeners.
@@ -39,6 +41,7 @@ class WaterTimesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_water_times)
 
+        val petId = intent.getStringExtra("petId")
 
         // Initialize views
         timePickerW = findViewById(R.id.timePickerWater)
@@ -48,7 +51,9 @@ class WaterTimesActivity : AppCompatActivity() {
         // Go back button functionality
         val goBackButton: ImageButton = findViewById(R.id.GoBackButtonWaterTimes)
         goBackButton.setOnClickListener {
+
             val intent = Intent(this, MainPageActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -64,7 +69,9 @@ class WaterTimesActivity : AppCompatActivity() {
                 set(Calendar.SECOND, 0)
             }
 
-            timestampsW.add(calendar)
+            // Format the time to string (HH:mm format)
+            val timeString = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
+            timestampsW.add(timeString)
 
             // Show the selected time in a Toast
             val selectedTime = String.format("%02d:%02d", hour, minute)
@@ -77,11 +84,15 @@ class WaterTimesActivity : AppCompatActivity() {
             updateTimestampsTextView()
 
             // Save the feeding time to Firestore
-            saveWaterChangeTimeToFirestore(calendar)
+            if (petId != null) {
+                saveWaterChangeTimeToFirestore(petId, timeString)
+            }
         }
 
-        // Load the existing water change times from Firestore if the user is logged in
-        loadWaterTimesFromFirestore()
+        // Load the existing feeding times from Firestore if the user is logged in
+        if (petId != null) {
+            loadWaterTimesFromFirestore(petId)
+        }
     }
     /**
      * Schedules a notification to trigger at the specified time.
@@ -113,19 +124,16 @@ class WaterTimesActivity : AppCompatActivity() {
     /**
      * Saves the selected water change time to Firestore under the current user's pet.
      */
-    private fun saveWaterChangeTimeToFirestore(calendar: Calendar) {
+    private fun saveWaterChangeTimeToFirestore(petID: String, timeString: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
-            .collection("pets")  // assuming the pet data is saved here
-            .document("petId")  // Replace with actual pet ID
-
-        // Convert the calendar to a Timestamp for Firestore
-        val waterChangeTime = Timestamp(calendar.time)
+            .collection("pets")
+            .document(petID)
 
         // Update the water change time list in Firestore
-        dbRef.update("waterChangeTime", FieldValue.arrayUnion(waterChangeTime))
+        dbRef.update("waterChangeTime", FieldValue.arrayUnion(timeString))
             .addOnSuccessListener {
                 Log.d("Firestore", "Water change time added successfully")
             }
@@ -134,25 +142,29 @@ class WaterTimesActivity : AppCompatActivity() {
             }
     }
 
-    private fun loadWaterTimesFromFirestore() {
+    private fun loadWaterTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
-            .collection("pets")  // Assuming the pet data is saved here
-            .document("petId")  // Replace with actual pet ID
+            .collection("pets")
+            .document(petID)
 
         dbRef.get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val waterTimes = document.get("waterChangeTime") as? List<Timestamp> ?: emptyList()
+                    val waterTimes = document.get("waterChangeTime") as? List<String> ?: emptyList()
 
-                    // Convert Firestore Timestamps to Calendar objects
-                    waterTimes.forEach { timestamp ->
-                        val calendar = Calendar.getInstance().apply {
-                            time = timestamp.toDate() // Convert Timestamp to Date and set in Calendar
+                    // Convert Firestore Strings to Calendar objects
+                    waterTimes.forEach { timeString ->
+                        val calendar = Calendar.getInstance()
+                        try {
+                            val time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(timeString)
+                            calendar.time = time
+                        } catch (e: Exception) {
+                            Log.e("FoodTimesActivity", "Error parsing feeding time string", e)
                         }
-                        timestampsW.add(calendar)
+                        timestampsW.add(timeString)
                     }
 
                     // Update the TextView to show the retrieved timestamps
@@ -169,13 +181,10 @@ class WaterTimesActivity : AppCompatActivity() {
      */
     private fun updateTimestampsTextView() {
         // Format the timestamps list as a string
-        val timestampsList = timestampsW.joinToString("\n") {
-            val hour = it.get(Calendar.HOUR_OF_DAY)
-            val minute = it.get(Calendar.MINUTE)
-            String.format("%02d:%02d", hour, minute)
-        }
+        val timestampsList = timestampsW.joinToString("\n")
 
         // Update the TextView with the formatted string
         timestampsTextViewW.text = "Scheduled Times:\n$timestampsList"
     }
-}
+    }
+

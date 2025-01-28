@@ -22,11 +22,14 @@ class MainPageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_page)
 
+        val petId = intent.getStringExtra("petId")
+
         // Set up the "Food" button to navigate to the FoodTimesActivity when clicked
         val FoodButton = findViewById<ImageButton>(R.id.FoodButton)
         FoodButton.setOnClickListener {
 
             val intent = Intent(this, FoodTimesActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -35,6 +38,7 @@ class MainPageActivity : AppCompatActivity() {
         WaterButton.setOnClickListener {
 
             val intent = Intent(this, WaterTimesActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -43,6 +47,7 @@ class MainPageActivity : AppCompatActivity() {
         SymptomsButton.setOnClickListener {
 
             val intent = Intent(this, SymptomsAddActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -51,6 +56,7 @@ class MainPageActivity : AppCompatActivity() {
         HealthHistoryButton.setOnClickListener {
 
             val intent = Intent(this, HealthInfoView::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -59,6 +65,7 @@ class MainPageActivity : AppCompatActivity() {
         VetsNearbyButton.setOnClickListener {
 
             val intent = Intent(this, VetsNearbyActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
