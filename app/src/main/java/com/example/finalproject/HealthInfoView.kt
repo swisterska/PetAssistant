@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * Activity for displaying a list of symptoms using a RecyclerView.
@@ -15,7 +16,7 @@ class HealthInfoView : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SymptomAdapter
-    private lateinit var database: DatabaseReference
+    private lateinit var db: FirebaseFirestore
     private var symptomList = mutableListOf<SymptomData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +25,6 @@ class HealthInfoView : AppCompatActivity() {
 
         val returnButton = findViewById<ImageButton>(R.id.goBackButton)
         returnButton.setOnClickListener {
-
             val intent = Intent(this, MainPageActivity::class.java)
             startActivity(intent)
         }
@@ -32,31 +32,34 @@ class HealthInfoView : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        // Retrieve userId and petId from intent
         val userId = intent.getStringExtra("userId") ?: return
         val petId = intent.getStringExtra("petId") ?: return
 
-        database = FirebaseDatabase.getInstance().getReference("users")
-            .child(userId).child("pets").child(petId).child("symptoms")
+        // Initialize Firestore reference
+        db = FirebaseFirestore.getInstance()
 
-        // Fetch data from Firebase
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+        // Fetch data from Firestore
+        db.collection("users")
+            .document(userId)
+            .collection("pets")
+            .document(petId)
+            .collection("symptoms")
+            .get()
+            .addOnSuccessListener { result ->
                 symptomList.clear()
-                for (data in snapshot.children) {
-                    val symptom = data.getValue(SymptomData::class.java)
-                    if (symptom != null) {
-                        symptomList.add(symptom)
-                    }
+                for (document in result) {
+                    val symptom = document.toObject(SymptomData::class.java).copy(id = document.id)
+                    symptomList.add(symptom)
                 }
                 adapter.notifyDataSetChanged()
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle database errors here
+            .addOnFailureListener { e ->
+                e.printStackTrace() // Log error
             }
-        })
 
-        adapter = SymptomAdapter(symptomList) { deletedItem ->
+        // Initialize the adapter with userId and petId
+        adapter = SymptomAdapter(symptomList, userId, petId) { deletedItem ->
             symptomList.remove(deletedItem)
             adapter.notifyDataSetChanged()
         }
