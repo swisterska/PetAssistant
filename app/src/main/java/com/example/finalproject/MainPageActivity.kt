@@ -46,14 +46,6 @@ class MainPageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Set up the "Healthcare" button to navigate to the HealthCareView when clicked
-        val HealthCareButton = findViewById<ImageButton>(R.id.HealthCareButton)
-        HealthCareButton.setOnClickListener {
-
-            val intent = Intent(this, HealthCareView::class.java)
-            startActivity(intent)
-        }
-
         // Set up the "Health History" button to navigate to the HealthInfoView when clicked
         val HealthHistoryButton = findViewById<ImageButton>(R.id.HealthHistoryButton)
         HealthHistoryButton.setOnClickListener {

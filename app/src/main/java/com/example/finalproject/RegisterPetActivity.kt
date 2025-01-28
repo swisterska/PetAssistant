@@ -15,11 +15,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.finalproject.firebase.Gender
 import com.example.finalproject.firebase.Pet
 import com.example.finalproject.firebase.Species
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.time.LocalDate
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 /**
@@ -126,11 +126,13 @@ class RegisterPetActivity : AppCompatActivity() {
             Log.d("RegisterPetActivity", "Register button clicked")
             val pet = collectPetData()
             if (pet != null && validateInput(pet)) {
+                Log.d("RegisterPetActivity", "Pet data valid, saving to Firebase")
                 savePetToFirebase(pet)
             } else {
                 Toast.makeText(this, "Invalid input. Please try again.", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
     /**
@@ -154,9 +156,9 @@ class RegisterPetActivity : AppCompatActivity() {
         } catch (e: IllegalArgumentException) {
             Species.UNKNOWN // Default if no selection is made
         }
-        val breed = breedInput.text.toString().trim().takeIf { it.isNotEmpty() } // Nullable breed
-        val city = cityInput.text.toString().trim().takeIf { it.isNotEmpty() } // Nullable city
-        val weight = weightInput.text.toString().toDoubleOrNull() // Nullable weight
+        val breed = breedInput.text.toString().trim().takeIf { it.isNotEmpty() }
+        val city = cityInput.text.toString().trim().takeIf { it.isNotEmpty() }
+        val weight = weightInput.text.toString().toDoubleOrNull()
         val gender = try {
             Gender.valueOf(genderSpinner.selectedItem.toString().uppercase())
         } catch (e: IllegalArgumentException) {
@@ -174,11 +176,14 @@ class RegisterPetActivity : AppCompatActivity() {
 
         val iconUriString = iconUri?.toString()
 
+        // Add logging to verify the collected data
+        Log.d("RegisterPetActivity", "Collected Pet Data: Name=$name, Species=$species, Breed=$breed, City=$city, Weight=$weight, Gender=$gender")
+
         return Pet(
             iconUri = iconUriString,
             name = name ?: "",  // Name is required
             species = species,
-            breed = breed ?: "",  // If breed is null, default to an empty string
+            breed = breed ?: "",
             city = city ?: "",
             weight = weight ?: 0.0, // If weight is null, default to 0.0
             gender = gender,
@@ -187,6 +192,7 @@ class RegisterPetActivity : AppCompatActivity() {
             dob = selectedDob
         )
     }
+
 
     /**
      * Validates the input fields to ensure the pet's details are correct.
@@ -206,25 +212,41 @@ class RegisterPetActivity : AppCompatActivity() {
 
     /**
      * Saves the pet data to Firebase. If an icon was selected, it will be uploaded to Firebase Storage.
+     * After the icon is uploaded, the pet data will be saved to Firestore.
      *
      * @param pet The pet object to be saved to Firebase.
      */
     private fun savePetToFirebase(pet: Pet) {
+        // Check if an icon URI is selected (user uploaded an icon)
         if (iconUri != null) {
+            // Upload the icon to Firebase Storage
             val storageRef = FirebaseStorage.getInstance().reference.child("pet_icons/${pet.name}_${System.currentTimeMillis()}.jpg")
+
             storageRef.putFile(iconUri!!).addOnSuccessListener { taskSnapshot ->
+                // On successful upload, get the download URL of the uploaded icon
                 taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
+                    // Set the pet's icon URI with the download URL of the uploaded image
                     pet.iconUri = uri.toString()
+                    // Save the pet details to Firestore
                     savePetDetails(pet)
+                }.addOnFailureListener { exception ->
+                    // Handle error in fetching the download URL
+                    Log.e("savePetToFirebase", "Failed to get download URL: ${exception.message}")
+                    Toast.makeText(this, "Failed to upload icon", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener { exception ->
+                // Handle error in uploading the file
+                Log.e("savePetToFirebase", "Failed to upload icon: ${exception.message}")
+                Toast.makeText(this, "Failed to upload icon", Toast.LENGTH_SHORT).show()
             }
         } else {
+            // If no icon was uploaded, save the pet data directly to Firestore
             savePetDetails(pet)
         }
     }
 
     /**
-     * Saves the pet details to Firebase Realtime Database.
+     * Saves the pet details to Firestore.
      *
      * @param pet The pet object to be saved.
      */
@@ -232,33 +254,30 @@ class RegisterPetActivity : AppCompatActivity() {
         // Get the currently logged-in user's ID (Firebase Authentication is used)
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // Reference to the specific user's "pets" node
-        val dbRef = FirebaseDatabase.getInstance().reference.child("users").child(userId).child("pets")
+        // Reference to the Firestore collection where the pets will be stored
+        val dbRef = FirebaseFirestore.getInstance().collection("users").document(userId).collection("pets")
 
-        // Generate a unique key for the pet inside the user's "pets" array
-        val petKey = dbRef.push().key
+        // Generate a document reference for the pet (Firestore automatically generates a unique ID for each pet)
+        val petRef = dbRef.document()
 
-        if (petKey != null) {
-            dbRef.child(petKey).setValue(pet).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("RegisterPetActivity", "Pet registered successfully under user: $userId")
-                    Toast.makeText(this, "New pet registered successfully!", Toast.LENGTH_SHORT).show()
+        // Save the pet data to Firestore
+        petRef.set(pet).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("RegisterPetActivity", "Pet registered successfully under user: $userId")
+                Toast.makeText(this, "New pet registered successfully!", Toast.LENGTH_SHORT).show()
 
-                    // Redirect user after successful registration
-                    val intent = Intent(this, ChooseYourPetActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Log.e("RegisterPetActivity", "Failed to register pet: ${task.exception?.message}")
-                    Toast.makeText(this, "Failed to register pet.", Toast.LENGTH_SHORT).show()
-                }
+                // Redirect user after successful registration
+                val intent = Intent(this, ChooseYourPetActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(intent)
+                finish()
+            } else {
+                Log.e("RegisterPetActivity", "Failed to register pet: ${task.exception?.message}")
+                Toast.makeText(this, "Failed to register pet.", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Log.e("RegisterPetActivity", "Failed to generate pet key.")
-            Toast.makeText(this, "Error generating pet key.", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
     /**

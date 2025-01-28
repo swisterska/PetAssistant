@@ -6,24 +6,34 @@
     android:background="@drawable/background"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="16dp">
 
+    <!-- Title Text -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/glikerblackfont"
         android:gravity="top|center"
         android:text="Choose or add the pet!"
-        android:textSize="35sp"
-        android:translationY="-40dp" />
+        android:textSize="35sp"/>
 
-
+    <!-- Add New Pet Button -->
     <ImageButton
         android:id="@+id/AddNewPetButton"
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:background="#00FFFFFF"
-        android:src="@drawable/addnewpetbutton" />
-        
+        android:src="@drawable/addnewpetbutton"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center" />
+
+    <!-- RecyclerView for displaying pets -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/petsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1" /> <!-- This will make the RecyclerView take up remaining space -->
 
 </LinearLayout>

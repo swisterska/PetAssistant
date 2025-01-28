@@ -5,8 +5,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
@@ -21,13 +22,13 @@
         android:theme="@style/Theme.FinalProject"
         tools:targetApi="31">
         <activity
+            android:name=".PetAdapter"
+            android:exported="false" />
+        <activity
             android:name=".EmergencyActivity"
             android:exported="false" />
         <activity
             android:name=".VetsNearbyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HealthCareView"
             android:exported="false" />
         <activity
             android:name=".SymptomsAddActivity"
@@ -38,14 +39,13 @@
         <activity
             android:name=".FoodTimesActivity"
             android:exported="false" />
-
         <activity
             android:name=".HealthInfoView"
             android:exported="false" />
 
-        <receiver android:name=".NotificationReceiver"
+        <receiver
+            android:name=".NotificationReceiver"
             android:exported="false" />
-
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -59,7 +59,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="mój api" />
+            android:value="AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4" />
 
         <activity
             android:name=".RegisterPetActivity"
