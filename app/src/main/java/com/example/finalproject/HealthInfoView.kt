@@ -1,51 +1,54 @@
 package com.example.finalproject
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 
 /**
- * Activity for displaying a list of health information items using a RecyclerView.
- * Data is fetched from a Firebase Realtime Database node named "items".
+ * Activity for displaying a list of symptoms using a RecyclerView.
  */
 class HealthInfoView : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: HealthInfoAdapter
+    private lateinit var adapter: SymptomAdapter
     private lateinit var database: DatabaseReference
-    private var itemList = mutableListOf<HealthInfoData>()
+    private var symptomList = mutableListOf<SymptomData>()
 
-    /**
-     * Initializes the activity and sets up the RecyclerView and Firebase database listener.
-     *
-     * @param savedInstanceState A Bundle containing the activity's previously saved state, if any.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_health_info_view)
 
+        val returnButton = findViewById<ImageButton>(R.id.goBackButton)
+        returnButton.setOnClickListener {
+
+            val intent = Intent(this, MainPageActivity::class.java)
+            startActivity(intent)
+        }
+
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        database = FirebaseDatabase.getInstance().reference.child("items")
+        val userId = intent.getStringExtra("userId") ?: return
+        val petId = intent.getStringExtra("petId") ?: return
+
+        database = FirebaseDatabase.getInstance().getReference("users")
+            .child(userId).child("pets").child(petId).child("symptoms")
 
         // Fetch data from Firebase
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                itemList.clear()
+                symptomList.clear()
                 for (data in snapshot.children) {
-                    val item = data.getValue(HealthInfoData::class.java)
-                    if (item != null) {
-                        itemList.add(item)
+                    val symptom = data.getValue(SymptomData::class.java)
+                    if (symptom != null) {
+                        symptomList.add(symptom)
                     }
                 }
-                adapter = HealthInfoAdapter(itemList) { deletedItem ->
-                    itemList.remove(deletedItem)
-                    adapter.notifyDataSetChanged()
-                }
-                recyclerView.adapter = adapter
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -53,5 +56,10 @@ class HealthInfoView : AppCompatActivity() {
             }
         })
 
+        adapter = SymptomAdapter(symptomList) { deletedItem ->
+            symptomList.remove(deletedItem)
+            adapter.notifyDataSetChanged()
+        }
+        recyclerView.adapter = adapter
     }
 }

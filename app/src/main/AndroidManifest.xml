@@ -21,6 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject"
         tools:targetApi="31">
+
+        <activity
+            android:name=".Historyforsymptomsandcare"
+            android:exported="false" />
         <activity
             android:name=".PetAdapter"
             android:exported="false" />
