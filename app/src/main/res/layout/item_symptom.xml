@@ -22,18 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Symptom"
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:paddingBottom="4dp" />
 
-    <TextView
-        android:id="@+id/symptomDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Description"
-        android:textSize="14sp"
-        android:textColor="#212121"
-        android:paddingBottom="8dp" />
 
     <Button
         android:id="@+id/deleteButton"

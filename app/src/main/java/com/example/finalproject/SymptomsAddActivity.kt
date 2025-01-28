@@ -11,10 +11,14 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 /**
  * SymptomsAddActivity is the activity where users can add symptoms for their pets.
@@ -26,8 +30,6 @@ class SymptomsAddActivity : AppCompatActivity() {
     private lateinit var symptomInput: EditText
     private lateinit var addSymptomButton: Button
     private lateinit var db: FirebaseFirestore
-    private lateinit var userId: String
-    private lateinit var petId: String
 
     /**
      * Called when the activity is created.
@@ -56,6 +58,7 @@ class SymptomsAddActivity : AppCompatActivity() {
         val returnButton = findViewById<ImageButton>(R.id.GoBackButtonSymptoms)
         returnButton.setOnClickListener {
             Log.d("SymptomsAddActivity", "GoBackButton clicked")
+            intent.putExtra("petId", petId)
             val intent = Intent(this, MainPageActivity::class.java)
             startActivity(intent)
         }
@@ -63,8 +66,9 @@ class SymptomsAddActivity : AppCompatActivity() {
         // Set up add symptom button functionality
         addSymptomButton.setOnClickListener {
             Log.d("SymptomsAddActivity", "AddSymptomButton clicked")
-
-            saveSymptomToFirestore()
+            if (petId != null) {
+                saveSymptomToFirestore(petId)
+            }
         }
     }
 
@@ -75,40 +79,50 @@ class SymptomsAddActivity : AppCompatActivity() {
      * @throws IllegalArgumentException if userId or petId is not provided or is invalid.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun saveSymptomToFirestore() {
-        // Get input from EditText
-        val symptom = symptomInput.text.toString().trim()
-        Log.d("SymptomsAddActivity", "Symptom input: $symptom")
+    private fun saveSymptomToFirestore(petID: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("pets")
+            .document(petID)
+            .collection("symptoms") // Storing symptoms in a subcollection
+
+        // Get input from EditText (the symptom text)
+        val symptomText = symptomInput.text.toString().trim()
+        Log.d("SymptomsAddActivity", "Symptom input: $symptomText")
 
         // Validate the input
-        if (TextUtils.isEmpty(symptom)) {
+        if (TextUtils.isEmpty(symptomText)) {
             Log.d("SymptomsAddActivity", "Symptom input is empty")
             Toast.makeText(this, "Please enter a symptom", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Create the symptom data to be saved to Firestore
-        val symptomData = hashMapOf(
-            "symptom" to symptom,
-            "date" to LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)        )
+        // Get current timestamp
+        val timeString = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
 
-        // Reference to the specific pet's symptoms subcollection in Firestore
-        val symptomRef = db.collection("users")
-            .document(userId)
-            .collection("pets")
-            .document(petId)
-            .collection("symptoms")
-            .add(symptomData) // Add a new document to the symptoms collection
+        // Generate a new document reference to get Firestore auto-generated ID
+        val newSymptomRef = dbRef.document()
 
-        symptomRef.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("SymptomsAddActivity", "Symptom added successfully")
+        // Create a SymptomData object
+        val symptomData = SymptomData(
+            id = newSymptomRef.id,  // Auto-generated Firestore ID
+            symptom = symptomText,
+            timestamp = timeString
+        )
+
+        // Add new symptom as a document in the "symptoms" subcollection
+        dbRef.add(symptomData)
+            .addOnSuccessListener {
+                Log.d("SymptomsAddActivity", "Symptom added successfully for pet $petID")
                 Toast.makeText(this, "Symptom added successfully", Toast.LENGTH_SHORT).show()
-                symptomInput.text.clear() // Clear the input field
-            } else {
-                Log.d("SymptomsAddActivity", "Failed to add symptom: ${task.exception?.message}")
+                symptomInput.text.clear()  // Clear input field
+            }
+            .addOnFailureListener { e ->
+                Log.e("SymptomsAddActivity", "Error adding symptom for pet $petID", e)
                 Toast.makeText(this, "Failed to add symptom", Toast.LENGTH_SHORT).show()
             }
-        }
     }
 }
+

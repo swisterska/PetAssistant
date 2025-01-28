@@ -1,20 +1,17 @@
 package com.example.finalproject
 
+import com.google.firebase.database.Exclude
+
 /**
- * Data class for symptoms stored in Firebase.
+ * Data class for symptoms stored in Firestore.
  *
- * @param id The unique ID of the symptom.
- * @param symptom The symptom title.
- * @param description The description of the symptom.
- * @param date The timestamp when the symptom was added.
- * @param userId The ID of the user who added the symptom.
- * @param petId The ID of the pet associated with the symptom.
+ * @param id The unique ID of the symptom document in Firestore.
+ * @param name The name of the symptom (e.g., "Coughing").
+ * @param description Additional details about the symptom.
+ * @param timestamp The timestamp when the symptom was recorded.
  */
 data class SymptomData(
-    val id: String? = null,
-    val symptom: String = "",
-    val description: String = "",
-    val date: String = "",
-    val userId: String = "",
-    val petId: String = ""
+    @Exclude val id: String? = null,  // Firestore auto-generated ID
+    val symptom: String = "",  // Name of the symptom (e.g., "Coughing", "Vomiting")
+    val timestamp: String = ""  // Date and time in "yyyy-MM-dd HH:mm" format
 )
