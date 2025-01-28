@@ -25,7 +25,7 @@ class VetsNearbyActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
     private val vetsList = mutableListOf<NearbyVet>()
 
-    private val API_KEY = "AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4"  // Ensure this is correct and valid
+    private val API_KEY = ""  // Ensure this is correct and valid
     private val BASE_URL = "https://maps.googleapis.com/maps/api/"
 
     private val TAG = "VetsNearbyActivity"  // For logging purposes

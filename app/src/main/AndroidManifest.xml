@@ -63,7 +63,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4" />
+            android:value="" />
 
         <activity
             android:name=".RegisterPetActivity"
