@@ -338,4 +338,3 @@ class RegisterPetActivity : AppCompatActivity() {
     }
 
 }
-

@@ -25,7 +25,7 @@ class VetsNearbyActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
     private val vetsList = mutableListOf<NearbyVet>()
 
-    private val API_KEY = ""  // Ensure this is correct and valid
+    private val API_KEY = "AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4"  // Ensure this is correct and valid
     private val BASE_URL = "https://maps.googleapis.com/maps/api/"
 
     private val TAG = "VetsNearbyActivity"  // For logging purposes
@@ -40,7 +40,7 @@ class VetsNearbyActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        vetListView = findViewById(R.id.vetListView)
+        //vetListView = findViewById(R.id.vetListView)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Check for location permissions
@@ -72,8 +72,8 @@ class VetsNearbyActivity : AppCompatActivity() {
         // Use a broader keyword search (veterinary or animal hospital) instead of specific type
         val call = service.getNearbyVets(
             location = "$lat,$lng",
-            radius = 50000,  // Increased radius to 50km
-            keyword = "veterinary",  // Searching by keyword instead of place type
+            radius = 5000000,  // Increased radius to 50km
+            keyword = "university",  // Searching by keyword instead of place type
             apiKey = API_KEY
         )
 

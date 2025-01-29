@@ -74,6 +74,7 @@ class MainPageActivity : AppCompatActivity() {
         EmergencyButton.setOnClickListener {
 
             val intent = Intent(this, EmergencyActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
