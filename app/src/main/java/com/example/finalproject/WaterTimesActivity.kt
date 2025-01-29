@@ -104,7 +104,9 @@ class WaterTimesActivity : AppCompatActivity() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         val intent = Intent(this, NotificationReceiver::class.java).apply {
-            putExtra("REMINDER_TYPE", reminderType) // Pass either "Food" or "Water"
+            putExtra("REMINDER_TYPE", reminderType)
+            val petId = intent.getStringExtra("petId")
+            putExtra("petId", petId)
         }
 
         val requestCode = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()

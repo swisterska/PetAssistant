@@ -1,11 +1,19 @@
 package com.example.finalproject
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.telephony.SmsManager
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * EmergencyActivity is responsible for managing an emergency countdown.
@@ -17,6 +25,14 @@ class EmergencyActivity : AppCompatActivity() {
     private lateinit var emergencyMessageText: TextView
     private lateinit var stopButton: Button
     private var isStopped = false
+    private val vetPhoneNumber = "606546183"
+
+    private var petName: String = "Unknown Pet"
+    private var userName: String = "Unknown User"
+
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
 
     /**
      * Called when the activity is created. This method initializes the UI components,
@@ -31,51 +47,96 @@ class EmergencyActivity : AppCompatActivity() {
         emergencyMessageText = findViewById(R.id.emergencyMessage)
         stopButton = findViewById(R.id.stopButton)
 
-        // Start countdown from 5 seconds
-        val countdownTimer = object : CountDownTimer(5000, 1000) {
-            /**
-             * Called every second to update the countdown timer.
-             * If the countdown is stopped by the user, it cancels the timer.
-             */
-            override fun onTick(millisUntilFinished: Long) {
-                if (isStopped) {
-                    cancel()  // Stop the countdown if the user presses stop
-                } else {
-                    countdownTimerText.text = (millisUntilFinished / 1000).toString()
-                }
-            }
-            /**
-             * Called when the countdown finishes.
-             * If the countdown wasn't stopped, it sends a notification to the vet.
-             */
-            override fun onFinish() {
-                if (!isStopped) {
-                    sendNotificationToVet()
-                }
-            }
+
+        // Request SMS permission if not granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), 1)
         }
 
-        // Start the countdown
-        countdownTimer.start()
+        // Fetch pet and user details BEFORE starting the countdown
+        fetchUserAndPetData {
+            startCountdown()
+        }
 
-        // Stop button to cancel the countdown and exit
         stopButton.setOnClickListener {
             isStopped = true
             Toast.makeText(this, "Countdown stopped", Toast.LENGTH_SHORT).show()
-            finish() // Exit the activity
+            finish()
         }
     }
 
     /**
-     * sendNotificationToVet simulates sending a message to the nearby vet.
-     * This function gets called once the countdown reaches 0, if the user has not stopped it.
+     * Fetches user and pet data and executes the callback once done.
      */
-    private fun sendNotificationToVet() {
-        // Simulate sending a message to the vet
-        Toast.makeText(this, "Message sent to nearby vet.", Toast.LENGTH_LONG).show()
+    private fun fetchUserAndPetData(onComplete: () -> Unit) {
+        val userId = auth.currentUser?.uid ?: return
 
-        // Display a message to the user indicating the message was sent
-        emergencyMessageText.text = "A message has been sent to the nearby vet."
-        emergencyMessageText.setTextColor(resources.getColor(android.R.color.holo_green_dark)) // Change text color to green
+        val userRef = db.collection("users").document(userId)
+
+        userRef.get().addOnSuccessListener { userDocument ->
+            if (userDocument.exists()) {
+                userName = userDocument.getString("username") ?: "Unknown User"
+
+                val petId = intent.getStringExtra("petId") ?: return@addOnSuccessListener
+
+                val petRef = userRef.collection("pets").document(petId)
+                petRef.get().addOnSuccessListener { petDocument ->
+                    if (petDocument.exists()) {
+                        petName = petDocument.getString("name") ?: "Unknown Pet"
+
+                        // Data fetching complete, execute callback
+                        onComplete()
+                    } else {
+                        Log.e("Firestore", "Pet not found for user $userName")
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("Firestore", "Error fetching pet data: ${e.message}")
+                }
+            } else {
+                Log.e("Firestore", "User not found in Firestore")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("Firestore", "Error fetching user data: ${e.message}")
+        }
+    }
+
+    /**
+     * Starts the countdown timer.
+     */
+    private fun startCountdown() {
+        val countdownTimer = object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                if (isStopped) {
+                    cancel()
+                } else {
+                    countdownTimerText.text = (millisUntilFinished / 1000).toString()
+                }
+            }
+
+            override fun onFinish() {
+                if (!isStopped) {
+                    sendSmsToVet()
+                }
+            }
+        }
+        countdownTimer.start()
+    }
+
+    /**
+     * Sends an SMS to the vet when the countdown finishes.
+     */
+    private fun sendSmsToVet() {
+        val smsMessage = "Pet $petName owned by $userName has an emergency. They will likely visit you soon."
+        try {
+            val smsManager = SmsManager.getDefault()
+            smsManager.sendTextMessage(vetPhoneNumber, null, smsMessage, null, null)
+            Toast.makeText(this, "SMS sent to vet.", Toast.LENGTH_LONG).show()
+
+            emergencyMessageText.text = "A message has been sent to the nearby vet."
+            emergencyMessageText.setTextColor(resources.getColor(android.R.color.holo_green_dark))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to send SMS: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 }

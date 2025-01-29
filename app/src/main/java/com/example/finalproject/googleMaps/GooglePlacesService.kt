@@ -9,8 +9,8 @@ interface GooglePlacesService {
     fun getNearbyVets(
         @Query("location") location: String,
         @Query("radius") radius: Int,
-        @Query("type") type: String = "veterinary",
-        @Query("keyword") keyword: String = "veterinarian", // Helps Google return relevant results
+        @Query("type") type: String = "university",
+        @Query("keyword") keyword: String = "university", // Helps Google return relevant results
         @Query("key") apiKey: String
     ): Call<PlacesResponse>
 }
