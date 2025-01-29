@@ -1,9 +1,14 @@
 package com.example.finalproject
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * MainPageActivity is the main activity where the user can access various features of the application,
@@ -23,6 +28,17 @@ class MainPageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main_page)
 
         val petId = intent.getStringExtra("petId")
+
+        // Find the TextView where the pet's name will be displayed
+        val petNameTextView = findViewById<TextView>(R.id.petNameTextView)
+
+        // Fetch and display the pet's name
+        if (petId != null) {
+            fetchPetName(this, petId, petNameTextView)
+        } else {
+            petNameTextView.text = "No Pet Selected"
+        }
+
 
         // Set up the "Food" button to navigate to the FoodTimesActivity when clicked
         val FoodButton = findViewById<ImageButton>(R.id.FoodButton)
@@ -84,6 +100,28 @@ class MainPageActivity : AppCompatActivity() {
 
             val intent = Intent(this, ChooseYourPetActivity::class.java)
             startActivity(intent)
+        }
+    }
+
+    /**
+     * Fetch the pet's name from Firestore and set it in the TextView.
+     */
+    private fun fetchPetName(@SuppressLint("RestrictedApi") context: MainPageActivity, petId: String, petNameTextView: TextView) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        val petRef = db.collection("users").document(userId).collection("pets").document(petId)
+
+        petRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val petName = document.getString("name") ?: "Your pet"
+                petNameTextView.text = petName // Update the TextView with the pet's name
+            } else {
+                Log.e("MainPageActivity", "Pet not found in Firestore")
+                petNameTextView.text = "Pet not found"
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("MainPageActivity", "Error fetching pet name: ${exception.message}")
+            petNameTextView.text = "Error fetching pet name"
         }
     }
 }
