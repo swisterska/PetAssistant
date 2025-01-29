@@ -69,5 +69,12 @@
         android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/petsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginTop="30dp"/>
+
+
 </LinearLayout>
 

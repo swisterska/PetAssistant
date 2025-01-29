@@ -4,7 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -32,7 +32,7 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
     }
 
     inner class PetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val petIcon: ImageView = itemView.findViewById(R.id.petIconImageView)
+        private val petIcon: ImageButton = itemView.findViewById(R.id.petIconImageView)
         private val petName: TextView = itemView.findViewById(R.id.petNameTextView)
         private val petSpecies: TextView = itemView.findViewById(R.id.petSpeciesTextView)
 
@@ -48,6 +48,7 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
                     .placeholder(R.drawable.dogicon)
                     .error(R.drawable.dogicon)
                     .into(petIcon)
+
             } else {
                 Log.d("PetAdapter", "Using default image for ${pet.name}")
                 petIcon.setImageResource(R.drawable.dogicon)

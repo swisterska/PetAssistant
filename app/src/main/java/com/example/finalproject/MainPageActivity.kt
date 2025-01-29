@@ -51,14 +51,7 @@ class MainPageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Set up the "Health History" button to navigate to the HealthInfoView when clicked
-        val HealthHistoryButton = findViewById<ImageButton>(R.id.HealthHistoryButton)
-        HealthHistoryButton.setOnClickListener {
 
-            val intent = Intent(this, HealthInfoView::class.java)
-            intent.putExtra("petId", petId)
-            startActivity(intent)
-        }
 
         // Set up the "Vets Nearby" button to navigate to the VetsNearbyActivity when clicked
         val VetsNearbyButton = findViewById<ImageButton>(R.id.VetsNearbyButton)

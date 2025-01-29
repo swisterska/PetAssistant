@@ -7,22 +7,20 @@
 
     <!-- Horizontal layout for image and text -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editButton"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Larger Pet Image -->
-        <ImageView
+        <ImageButton
             android:id="@+id/petIconImageView"
-            android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:scaleType="centerInside"
-        android:contentDescription="@string/pet_image"
-        android:layout_marginEnd="16dp" />
+            android:layout_width="70dp"
+            android:layout_height="50dp"
+            android:background="@drawable/icon_selector"
+            android:src="@drawable/dogicon" />
 
-        <!-- Vertical layout for text (name and species) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,7 +47,16 @@
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray" />
         </LinearLayout>
-
     </LinearLayout>
 
+    <!-- Edit Button aligned to the right -->
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/icon_selector"
+        android:src="@drawable/editbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

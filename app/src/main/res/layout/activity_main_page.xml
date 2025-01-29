@@ -27,47 +27,44 @@
         android:layout_height="40dp"/>
 
     <!-- Main Content Layout -->
+
+    <!-- Logo Image at the Bottom -->
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_height="458dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ImageButton
             android:id="@+id/FoodButton"
             android:layout_width="200dp"
-            android:layout_height="65dp"
+            android:layout_height="71dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/foodbutton"/>
+            android:src="@drawable/foodbutton" />
 
         <ImageButton
             android:id="@+id/WaterButton"
             android:layout_width="200dp"
-            android:layout_height="65dp"
+            android:layout_height="71dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/waterbutton"/>
+            android:src="@drawable/waterbutton" />
 
         <ImageButton
             android:id="@+id/SymptomsButton"
             android:layout_width="200dp"
-            android:layout_height="65dp"
+            android:layout_height="71dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/symptomsbutton"/>
+            android:src="@drawable/symptomsbutton" />
 
-        <ImageButton
-            android:id="@+id/HealthHistoryButton"
-            android:layout_width="200dp"
-            android:layout_height="65dp"
-            android:background="#00FFFFFF"
-            android:src="@drawable/healthhistorybutton"/>
 
         <ImageButton
             android:id="@+id/VetsNearbyButton"
             android:layout_width="200dp"
-            android:layout_height="65dp"
+            android:layout_height="71dp"
             android:layout_marginBottom="10dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/vetsnearbybutton"/>
+            android:src="@drawable/vetsnearbybutton" />
 
         <ImageButton
             android:id="@+id/EmergencyyButton"
@@ -75,10 +72,9 @@
             android:layout_height="65dp"
             android:layout_marginTop="20dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/emergencybutton"/>
+            android:src="@drawable/emergencybutton" />
     </LinearLayout>
 
-    <!-- Logo Image at the Bottom -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
