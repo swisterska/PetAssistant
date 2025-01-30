@@ -12,7 +12,9 @@ class SymptomAdapter(
     private val symptomList: MutableList<SymptomData>,
     private val userId: String,
     private val petId: String,
-    private val onItemDeleted: (SymptomData) -> Unit
+    private val onItemDeleted: (SymptomData) -> Unit,
+    private val onItemClick: (SymptomData) -> Unit // Add click listener
+
 ) : RecyclerView.Adapter<SymptomAdapter.SymptomViewHolder>() {
 
     private val db = FirebaseFirestore.getInstance()
@@ -37,23 +39,28 @@ class SymptomAdapter(
             symptomDate.text = "Date: ${symptom.timestamp}"
             symptomTitle.text = "Symptom: ${symptom.symptom}"
 
-            deleteButton.setOnClickListener {
-                symptom.id?.let { symptomId ->
-                    db.collection("users")
-                        .document(userId)
-                        .collection("pets")
-                        .document(petId)
-                        .collection("symptoms")
-                        .document(symptomId)
-                        .delete()
-                        .addOnSuccessListener {
-                            // No need to manually remove item. Firestore listener will update UI
-                        }
-                        .addOnFailureListener { e ->
-                            e.printStackTrace()
-                        }
+            itemView.setOnClickListener {
+                onItemClick(symptom)
+
+                deleteButton.setOnClickListener {
+                    symptom.id?.let { symptomId ->
+                        db.collection("users")
+                            .document(userId)
+                            .collection("pets")
+                            .document(petId)
+                            .collection("symptoms")
+                            .document(symptomId)
+                            .delete()
+                            .addOnSuccessListener {
+                                // No need to manually remove item. Firestore listener will update UI
+                            }
+                            .addOnFailureListener { e ->
+                                e.printStackTrace()
+                            }
+                    }
                 }
             }
         }
     }
+
 }

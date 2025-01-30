@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,10 +49,16 @@ class SymptomsAddActivity : AppCompatActivity() {
 
         // Set up RecyclerView
         symptomList = mutableListOf()
-        symptomAdapter = SymptomAdapter(symptomList, userId, petId ?: "") { deletedSymptom ->
-            symptomList.remove(deletedSymptom)
-            symptomAdapter.notifyDataSetChanged()
-        }
+        symptomAdapter = SymptomAdapter(symptomList, userId, petId ?: "",
+            { deletedSymptom ->
+                symptomList.remove(deletedSymptom)
+                symptomAdapter.notifyDataSetChanged()
+            },
+            { selectedSymptom ->
+                showEditDialog(selectedSymptom) // Show edit dialog when clicked
+            }
+        )
+
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = symptomAdapter
@@ -147,4 +154,50 @@ class SymptomsAddActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to add symptom", Toast.LENGTH_SHORT).show()
             }
     }
+
+    private fun showEditDialog(symptomData: SymptomData) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_symptom, null)
+        val editSymptomInput = dialogView.findViewById<EditText>(R.id.editSymptomInput)
+        val editDescriptionInput = dialogView.findViewById<EditText>(R.id.editDescriptionInput)
+
+        editSymptomInput.setText(symptomData.symptom)
+        editDescriptionInput.setText(symptomData.description)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("Edit Symptom")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val updatedSymptom = editSymptomInput.text.toString().trim()
+                val updatedDescription = editDescriptionInput.text.toString().trim()
+
+                if (updatedSymptom.isEmpty()) {
+                    Toast.makeText(this, "Symptom cannot be empty", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Update in Firestore
+                val symptomRef = db.collection("users")
+                    .document(userId)
+                    .collection("pets")
+                    .document(petId!!)
+                    .collection("symptoms")
+                    .document(symptomData.id!!)
+
+                symptomRef.update(
+                    mapOf(
+                        "symptom" to updatedSymptom,
+                        "description" to updatedDescription
+                    )
+                ).addOnSuccessListener {
+                    Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show()
+                }.addOnFailureListener {
+                    Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        alertDialog.show()
+    }
+
 }

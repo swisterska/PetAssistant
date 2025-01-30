@@ -13,6 +13,6 @@ import com.google.firebase.database.Exclude
 data class SymptomData(
     @Exclude val id: String? = null,
     val symptom: String = "",
+    val description: String = "",
     val timestamp: String = ""
 )
-
