@@ -13,8 +13,7 @@ class SymptomAdapter(
     private val userId: String,
     private val petId: String,
     private val onItemDeleted: (SymptomData) -> Unit,
-    private val onItemClick: (SymptomData) -> Unit // Add click listener
-
+    private val onItemClick: (SymptomData) -> Unit
 ) : RecyclerView.Adapter<SymptomAdapter.SymptomViewHolder>() {
 
     private val db = FirebaseFirestore.getInstance()
@@ -33,34 +32,36 @@ class SymptomAdapter(
     inner class SymptomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val symptomDate: TextView = itemView.findViewById(R.id.symptomDate)
         private val symptomTitle: TextView = itemView.findViewById(R.id.symptomTitle)
+        private val symptomDescription: TextView = itemView.findViewById(R.id.symptomDescription)
         private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
         fun bind(symptom: SymptomData) {
             symptomDate.text = "Date: ${symptom.timestamp}"
             symptomTitle.text = "Symptom: ${symptom.symptom}"
 
-            itemView.setOnClickListener {
-                onItemClick(symptom)
 
-                deleteButton.setOnClickListener {
-                    symptom.id?.let { symptomId ->
-                        db.collection("users")
-                            .document(userId)
-                            .collection("pets")
-                            .document(petId)
-                            .collection("symptoms")
-                            .document(symptomId)
-                            .delete()
-                            .addOnSuccessListener {
-                                // No need to manually remove item. Firestore listener will update UI
-                            }
-                            .addOnFailureListener { e ->
-                                e.printStackTrace()
-                            }
-                    }
+
+            itemView.setOnClickListener {
+                onItemClick(symptom) // Open edit dialog when clicked
+            }
+
+            deleteButton.setOnClickListener {
+                symptom.id?.let { symptomId ->
+                    db.collection("users")
+                        .document(userId)
+                        .collection("pets")
+                        .document(petId)
+                        .collection("symptoms")
+                        .document(symptomId)
+                        .delete()
+                        .addOnSuccessListener {
+                            onItemDeleted(symptom) // Remove item from UI
+                        }
+                        .addOnFailureListener { e ->
+                            e.printStackTrace()
+                        }
                 }
             }
         }
     }
-
 }

@@ -22,6 +22,7 @@ import java.util.*
 class SymptomsAddActivity : AppCompatActivity() {
 
     private lateinit var symptomInput: EditText
+    private lateinit var symptomDescriptionInput: EditText
     private lateinit var addSymptomButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var symptomAdapter: SymptomAdapter
@@ -38,12 +39,11 @@ class SymptomsAddActivity : AppCompatActivity() {
         Log.d("SymptomsAddActivity", "onCreate: Activity created")
 
         petId = intent.getStringExtra("petId")
-
         userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
         db = FirebaseFirestore.getInstance()
 
         symptomInput = findViewById(R.id.symptomInput)
+        symptomDescriptionInput = findViewById(R.id.symptomDescriptionInput)
         addSymptomButton = findViewById(R.id.addSymptom)
         recyclerView = findViewById(R.id.petsRecyclerView)
 
@@ -55,7 +55,7 @@ class SymptomsAddActivity : AppCompatActivity() {
                 symptomAdapter.notifyDataSetChanged()
             },
             { selectedSymptom ->
-                showEditDialog(selectedSymptom) // Show edit dialog when clicked
+                showEditDialog(selectedSymptom)
             }
         )
 
@@ -118,8 +118,10 @@ class SymptomsAddActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveSymptomToFirestore(petID: String) {
         val symptomText = symptomInput.text.toString().trim()
+        val descriptionText = symptomDescriptionInput.text.toString().trim()
 
-        if (TextUtils.isEmpty(symptomText)) {
+
+        if (symptomText.isEmpty()) {
             Toast.makeText(this, "Please enter a symptom", Toast.LENGTH_SHORT).show()
             return
         }
@@ -139,6 +141,7 @@ class SymptomsAddActivity : AppCompatActivity() {
         val symptomData = SymptomData(
             id = newSymptomRef.id,
             symptom = symptomText,
+            description = descriptionText, // ✅ Save description
             timestamp = timeString
         )
 
@@ -146,6 +149,7 @@ class SymptomsAddActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(this, "Symptom added successfully", Toast.LENGTH_SHORT).show()
                 symptomInput.text.clear()
+                symptomDescriptionInput.text.clear()
 
                 // No need to manually add the symptom since Firestore listener will handle it
             }
@@ -170,12 +174,13 @@ class SymptomsAddActivity : AppCompatActivity() {
                 val updatedSymptom = editSymptomInput.text.toString().trim()
                 val updatedDescription = editDescriptionInput.text.toString().trim()
 
-                if (updatedSymptom.isEmpty()) {
-                    Toast.makeText(this, "Symptom cannot be empty", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                if (updatedSymptom.isNotEmpty()) {
+                    db.collection("users").document(userId).collection("pets")
+                        .document(petId!!).collection("symptoms")
+                        .document(symptomData.id!!)
+                        .update(mapOf("symptom" to updatedSymptom, "description" to updatedDescription))
                 }
 
-                // Update in Firestore
                 val symptomRef = db.collection("users")
                     .document(userId)
                     .collection("pets")
@@ -183,21 +188,25 @@ class SymptomsAddActivity : AppCompatActivity() {
                     .collection("symptoms")
                     .document(symptomData.id!!)
 
-                symptomRef.update(
-                    mapOf(
-                        "symptom" to updatedSymptom,
-                        "description" to updatedDescription
-                    )
-                ).addOnSuccessListener {
-                    Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener {
-                    Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show()
+                val updateData = mutableMapOf<String, Any>("symptom" to updatedSymptom)
+                if (updatedDescription.isNotEmpty()) {
+                    updateData["description"] = updatedDescription
+                } else {
+                    updateData["description"] = ""
                 }
+
+                symptomRef.update(updateData)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener {
+                        Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show()
+                    }
             }
             .setNegativeButton("Cancel", null)
             .create()
 
         alertDialog.show()
     }
+
 
 }

@@ -43,6 +43,16 @@
         android:fontFamily="@font/glikerblackfont"
         android:paddingBottom="2dp"/>
 
+    <TextView
+        android:id="@+id/symptomDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textSize="16sp"
+        android:paddingTop="2dp"
+        android:fontFamily="@font/glikerblackfont"
+        android:visibility="gone"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
