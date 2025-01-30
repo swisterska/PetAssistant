@@ -79,7 +79,6 @@ data class Pet(
     var allergies: MutableList<String> = mutableListOf(),
     var diseases: MutableList<String> = mutableListOf(),
     var weight: Double,
-    var city: String = "",
     var gender: Gender = Gender.UNKNOWN,
     var feedingTime: MutableList<String> = mutableListOf(),
     var waterTime: MutableList<String> = mutableListOf(),
@@ -100,7 +99,6 @@ data class Pet(
         allergies = mutableListOf(),
         diseases = mutableListOf(),
         weight = 0.0,
-        city = "",
         gender = Gender.UNKNOWN,
         feedingTime = mutableListOf(),
         waterTime = mutableListOf(),
@@ -179,7 +177,6 @@ data class Pet(
                 allergies = (data["allergies"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 diseases = (data["diseases"] as? List<String>)?.toMutableList() ?: mutableListOf(),
                 weight = (data["weight"] as? Number)?.toDouble() ?: 0.0,
-                city = data["city"] as? String ?: "",
 
                 gender = (data["gender"] as? String)?.let {
                     try {

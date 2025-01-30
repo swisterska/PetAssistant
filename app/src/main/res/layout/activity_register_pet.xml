@@ -7,21 +7,22 @@
     android:gravity="center"
     android:background="@drawable/background">
 
-    <!-- Header Section -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="9dp">
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:translationY="-10dp">
 
         <ImageButton
             android:id="@+id/GoBackButton"
             android:layout_width="55dp"
             android:layout_height="55dp"
+            android:layout_marginEnd="10dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/gobackcimpleblack"
-            android:layout_marginEnd="10dp"/>
+            android:src="@drawable/gobackcimpleblack" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -33,22 +34,23 @@
             android:translationX="15dp" />
     </LinearLayout>
 
-    <!-- Icons row -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/glikerblackfont"
         android:text="Choose your pet's profile picture:"
         android:textColor="@color/black"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center"/>
+        android:translationY="-5dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:translationY="-5dp">
         <!-- Icon Buttons for Pet Icons -->
         <ImageButton
             android:id="@+id/DogButton"
@@ -90,105 +92,108 @@
             android:src="@drawable/addfromgalleryicon" />
     </LinearLayout>
 
-    <!-- Form Inputs -->
-    <EditText
-        android:id="@+id/petNameInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="*Pet name: "
-        android:layout_margin="8dp"/>
-
-    <EditText
-        android:id="@+id/dobInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Date of birth"
-        android:focusable="false"
-        android:inputType="none"
-        android:layout_margin="8dp"/>
-
-    <Spinner
-        android:id="@+id/speciesInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:spinnerMode="dropdown" />
-
-    <EditText
-        android:id="@+id/breedInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Breed: "
-        android:layout_margin="8dp"/>
-
-    <EditText
-        android:id="@+id/cityInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="City: "
-        android:layout_margin="8dp"/>
-
-    <!-- Allergies input with scroll -->
-    <EditText
-        android:id="@+id/allergiesInput"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Allergies: "
-        android:layout_margin="8dp"
-        android:inputType="textMultiLine"
-        android:scrollbars="vertical"
-        android:overScrollMode="always"/>
-
-    <!-- Diseases input with scroll -->
-    <EditText
-        android:id="@+id/diseasesInput"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Diseases: "
-        android:layout_margin="8dp"
-        android:inputType="textMultiLine"
-        android:scrollbars="vertical"
-        android:overScrollMode="always"/>
-
-    <!-- Weight section -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_margin="8dp">
-
-        <TextView
-            android:id="@+id/weightLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Weight (kg):"
-            android:textSize="16sp"
-            android:layout_gravity="center_vertical" />
+        android:layout_width="400dp"
+        android:layout_height="550dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
 
         <EditText
-            android:id="@+id/weightInput"
-            android:layout_width="wrap_content"
+            android:id="@+id/petNameInput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter weight"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:padding="8dp"
-            android:inputType="numberDecimal"/>
+            android:layout_margin="8dp"
+            android:hint="*Pet name: " />
 
+        <EditText
+            android:id="@+id/dobInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:focusable="false"
+            android:hint="Date of birth"
+            android:inputType="none" />
+
+        <Spinner
+            android:id="@+id/speciesInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:spinnerMode="dropdown" />
+
+        <EditText
+            android:id="@+id/breedInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="Breed: " />
+
+
+        <!-- Allergies input with scroll -->
+        <EditText
+            android:id="@+id/allergiesInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="8dp"
+            android:hint="Allergies: "
+            android:inputType="textMultiLine"
+            android:overScrollMode="always"
+            android:scrollbars="vertical" />
+
+        <!-- Diseases input with scroll -->
+        <EditText
+            android:id="@+id/diseasesInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="8dp"
+            android:hint="Diseases: "
+            android:inputType="textMultiLine"
+            android:overScrollMode="always"
+            android:scrollbars="vertical" />
+
+        <!-- Weight section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/weightLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Weight (kg):"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/weightInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Enter weight"
+                android:inputType="numberDecimal"
+                android:padding="8dp"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/genderSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp" />
+
+        <Button
+            android:id="@+id/registerPetBtn"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/registernewpeticon"
+            android:text="Register"
+            android:translationY="30dp" />
     </LinearLayout>
 
-    <Spinner
-        android:id="@+id/genderSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"/>
-
-    <Button
-        android:id="@+id/registerPetBtn"
-        android:layout_width="110dp"
-        android:layout_height="50dp"
-        android:text="Register"
-        android:src="@drawable/registernewpeticon"
-        android:layout_gravity="center" />
 </LinearLayout>

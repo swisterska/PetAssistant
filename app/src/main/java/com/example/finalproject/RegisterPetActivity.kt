@@ -32,7 +32,6 @@ class RegisterPetActivity : AppCompatActivity() {
     private lateinit var petNameInput: EditText
     private lateinit var speciesSpinner: Spinner
     private lateinit var breedInput: EditText
-    private lateinit var cityInput: EditText
     private lateinit var weightInput: EditText
     private lateinit var genderSpinner: Spinner
     private lateinit var allergiesInput: EditText
@@ -66,7 +65,6 @@ class RegisterPetActivity : AppCompatActivity() {
         petNameInput = findViewById(R.id.petNameInput)
         speciesSpinner = findViewById(R.id.speciesInput)
         breedInput = findViewById(R.id.breedInput)
-        cityInput = findViewById(R.id.cityInput)
         weightInput = findViewById(R.id.weightInput)
         genderSpinner = findViewById(R.id.genderSpinner)
         allergiesInput = findViewById(R.id.allergiesInput)
@@ -159,7 +157,6 @@ class RegisterPetActivity : AppCompatActivity() {
             Species.UNKNOWN // Default if no selection is made
         }
         val breed = breedInput.text.toString().trim().takeIf { it.isNotEmpty() }
-        val city = cityInput.text.toString().trim().takeIf { it.isNotEmpty() }
         val weight = weightInput.text.toString().toDoubleOrNull()
         val gender = try {
             Gender.valueOf(genderSpinner.selectedItem.toString().uppercase())
@@ -184,7 +181,7 @@ class RegisterPetActivity : AppCompatActivity() {
 
 
         // Add logging to verify the collected data
-        Log.d("RegisterPetActivity", "Collected Pet Data: Name=$name, Species=$species, Breed=$breed, City=$city, Weight=$weight, Gender=$gender")
+        Log.d("RegisterPetActivity", "Collected Pet Data: Name=$name, Species=$species, Breed=$breed, Weight=$weight, Gender=$gender")
 
         return Pet(
             iconUri.toString(),
@@ -196,7 +193,6 @@ class RegisterPetActivity : AppCompatActivity() {
             allergies,
             diseases,
             weight ?: 0.0,
-            city ?: "",
             gender
         )
     }
@@ -209,13 +205,24 @@ class RegisterPetActivity : AppCompatActivity() {
      * @return true if the input is valid, false otherwise.
      */
     private fun validateInput(pet: Pet): Boolean {
+        var errorMessage: String? = null  // Store the first error message found
+
         if (pet.name.isBlank()) {
-            Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show()
-            return false
+            errorMessage = "Name is required"
+        } else if (pet.species == Species.UNKNOWN) {
+            errorMessage = "Please select a valid species"
         }
 
-        return true // Only name is mandatory; other fields can be null or empty
+        if (errorMessage != null) {
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+            return false  // Stop validation immediately after the first error
+        }
+
+        return true  // If no errors, return true
     }
+
+
+
 
 
     /**
@@ -303,6 +310,7 @@ class RegisterPetActivity : AppCompatActivity() {
             },
             year, month, day
         )
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
 
