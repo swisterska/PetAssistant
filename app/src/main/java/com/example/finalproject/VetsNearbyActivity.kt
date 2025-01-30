@@ -34,9 +34,12 @@ class VetsNearbyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vets_nearby)
 
+        val petId = intent.getStringExtra("petId")
+
         val returnButton = findViewById<ImageButton>(R.id.GoBackButtonVetsNearby)
         returnButton.setOnClickListener {
             val intent = Intent(this, MainPageActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 

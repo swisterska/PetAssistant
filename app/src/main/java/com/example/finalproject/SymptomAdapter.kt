@@ -47,12 +47,7 @@ class SymptomAdapter(
                         .document(symptomId)
                         .delete()
                         .addOnSuccessListener {
-                            val position = adapterPosition
-                            if (position != RecyclerView.NO_POSITION) {
-                                symptomList.removeAt(position)
-                                notifyItemRemoved(position)
-                                onItemDeleted(symptom)
-                            }
+                            // No need to manually remove item. Firestore listener will update UI
                         }
                         .addOnFailureListener { e ->
                             e.printStackTrace()

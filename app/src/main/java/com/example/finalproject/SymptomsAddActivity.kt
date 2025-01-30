@@ -80,6 +80,7 @@ class SymptomsAddActivity : AppCompatActivity() {
             .collection("pets")
             .document(petId)
             .collection("symptoms")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
 
         dbRef.addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -88,15 +89,24 @@ class SymptomsAddActivity : AppCompatActivity() {
             }
 
             if (snapshot != null) {
-                symptomList.clear()
+                val updatedSymptoms = mutableListOf<SymptomData>()
+
                 for (document in snapshot.documents) {
                     val symptom = document.toObject(SymptomData::class.java)
-                    symptom?.let { symptomList.add(it) }
+                    symptom?.let { updatedSymptoms.add(it) }
                 }
+
+                symptomList.clear()
+                symptomList.addAll(updatedSymptoms)
                 symptomAdapter.notifyDataSetChanged()
+
+                // Scroll to bottom automatically so the newest symptom is visible
+                recyclerView.scrollToPosition(symptomList.size - 1)
             }
         }
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveSymptomToFirestore(petID: String) {
@@ -107,7 +117,10 @@ class SymptomsAddActivity : AppCompatActivity() {
             return
         }
 
-        val timeString = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
+        val timeString = SimpleDateFormat(
+            "yyyy-MM-dd HH:mm",
+            Locale.getDefault()
+        ).format(Calendar.getInstance().time)
 
         val newSymptomRef = db.collection("users")
             .document(userId)
@@ -126,8 +139,8 @@ class SymptomsAddActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(this, "Symptom added successfully", Toast.LENGTH_SHORT).show()
                 symptomInput.text.clear()
-                symptomList.add(symptomData)
-                symptomAdapter.notifyItemInserted(symptomList.size - 1)
+
+                // No need to manually add the symptom since Firestore listener will handle it
             }
             .addOnFailureListener { e ->
                 Log.e("SymptomsAddActivity", "Error adding symptom", e)

@@ -1,12 +1,14 @@
 package com.example.finalproject
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +43,15 @@ class EmergencyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emergency)
+
+        val petId = intent.getStringExtra("petId")
+        
+        val returnButton = findViewById<ImageButton>(R.id.GoBackButton)
+        returnButton.setOnClickListener {
+            val intent = Intent(this, MainPageActivity::class.java)
+            intent.putExtra("petId", petId)
+            startActivity(intent)
+        }
 
         // Initialize UI components
         countdownTimerText = findViewById(R.id.countdownTimer)
