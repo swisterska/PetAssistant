@@ -24,7 +24,7 @@ class VetAdapter(
             // Open Google Maps when the list item is clicked
             val gmmIntentUri = Uri.parse("google.navigation:q=${vet?.latitude},${vet?.longitude}")
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps") // Ensure Google Maps is used
+            mapIntent.setPackage("com.google.android.apps.maps")
             context.startActivity(mapIntent)
         }
 

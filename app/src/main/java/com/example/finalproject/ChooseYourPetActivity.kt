@@ -159,8 +159,8 @@ class ChooseYourPetActivity : AppCompatActivity() {
                 allergies = editAllergies.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() },
                 diseases = editDiseases.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() },
                 dob = editDob.text.toString().trim(),
-                gender = Pet.Gender.valueOf(genderSpinner.selectedItem.toString().uppercase()),  // Corrected reference
-                species = Pet.Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())  // Corrected reference
+                gender = Gender.valueOf(genderSpinner.selectedItem.toString().uppercase()),  // Corrected reference
+                species = Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())  // Corrected reference
             )
 
             updatePetInFirestore(updatedPet)
