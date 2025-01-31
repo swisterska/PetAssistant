@@ -29,6 +29,7 @@ class FoodTimesActivity : AppCompatActivity() {
 
     private lateinit var timePicker: TimePicker
     private lateinit var setTimeButton: Button
+    private lateinit var clearTimeButton: Button
     private lateinit var timestampsTextView: TextView
     private val timestamps = mutableListOf<String>()
 
@@ -46,6 +47,7 @@ class FoodTimesActivity : AppCompatActivity() {
         // Initialize views
         timePicker = findViewById(R.id.timePickerFood)
         setTimeButton = findViewById(R.id.setTimeFoodNotif)
+        clearTimeButton = findViewById(R.id.clearTimeFoodNotif)
         timestampsTextView = findViewById(R.id.timestampsTextView)
 
         // Go back button functionality
@@ -85,6 +87,13 @@ class FoodTimesActivity : AppCompatActivity() {
             // Save the feeding time to Firestore
             if (petId != null) {
                 saveFeedingTimeToFirestore(petId, timeString)
+            }
+        }
+
+        clearTimeButton.setOnClickListener {
+            // Call the function to delete all feeding times
+            if (petId != null) {
+                deleteAllFeedingTimesFromFirestore(petId)
             }
         }
 
@@ -190,6 +199,40 @@ class FoodTimesActivity : AppCompatActivity() {
         val timestampsList = timestamps.joinToString("\n")
 
         // Update the TextView with the formatted string
-        timestampsTextView.text = "Scheduled Times:\n$timestampsList"
+        timestampsTextView.text = if (timestampsList.isEmpty()) {
+            "No feeding times set."
+        } else {
+            "Scheduled Times:\n$timestampsList"
+        }
     }
+
+
+    private fun deleteAllFeedingTimesFromFirestore(petID: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("pets")
+            .document(petID)  // Use the petID passed to this function
+
+        // Set the feeding time list to an empty list in Firestore
+        dbRef.update("feedingTime", FieldValue.arrayRemove(*timestamps.toTypedArray()))
+            .addOnSuccessListener {
+                Log.d("Firestore", "All feeding times deleted successfully for pet $petID")
+                // Clear the list of timestamps and update the UI
+                timestamps.clear()
+                updateTimestampsTextView()
+
+                // Show a Toast indicating that the times were deleted
+                Toast.makeText(this, "All feeding times deleted", Toast.LENGTH_SHORT).show()
+
+                // Optionally reload feeding times to ensure list is empty
+                loadFeedingTimesFromFirestore(petID)
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error deleting feeding times for pet $petID", e)
+            }
+    }
+
+
 }
