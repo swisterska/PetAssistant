@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -43,7 +44,9 @@ class SymptomsAddActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         symptomInput = findViewById(R.id.symptomInput)
+        symptomInput.movementMethod = ScrollingMovementMethod()
         symptomDescriptionInput = findViewById(R.id.symptomDescriptionInput)
+        symptomDescriptionInput.movementMethod = ScrollingMovementMethod()
         addSymptomButton = findViewById(R.id.addSymptom)
         recyclerView = findViewById(R.id.petsRecyclerView)
 
