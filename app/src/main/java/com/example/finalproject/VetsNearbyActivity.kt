@@ -7,6 +7,7 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.android.volley.Response
@@ -103,9 +104,6 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
                 "location=$locationString&radius=$radius&type=$type&key=$apiKey"
 
-
-
-
         Log.d("API Request", "Requesting: $url")
 
         val request = object : StringRequest(Method.GET, url,
@@ -120,6 +118,8 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                         Log.w("VetsNearbyActivity", "No nearby places found.")
                     }
 
+                    val vetList = mutableListOf<Vet>()
+
                     for (i in 0 until results.length()) {
                         val place = results.getJSONObject(i)
                         val location = place.getJSONObject("geometry").getJSONObject("location")
@@ -127,12 +127,22 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                         val lng = location.getDouble("lng")
                         val placeName = place.getString("name")
 
+                        // Add to the map as a marker
                         mMap.addMarker(
                             MarkerOptions()
                                 .position(LatLng(lat, lng))
                                 .title(placeName)
                         )
+
+                        // Add to the vetList
+                        vetList.add(Vet(placeName, lat, lng))
                     }
+
+                    // Set up the ListView with the adapter
+                    val vetListView: ListView = findViewById(R.id.vet_list_view)
+                    val adapter = VetAdapter(this, vetList)
+                    vetListView.adapter = adapter
+
                 } catch (e: JSONException) {
                     Log.e("VetsNearbyActivity", "JSON parsing error: ${e.message}")
                 }
@@ -143,6 +153,8 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
 
         Volley.newRequestQueue(this).add(request)
     }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
