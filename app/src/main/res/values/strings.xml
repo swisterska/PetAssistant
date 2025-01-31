@@ -13,5 +13,45 @@
     <string name="google_maps_key"></string>
 
 
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Unknown</item>
+    </string-array>
+
+
+    <string-array name="species_array">
+        <item>Axolotl</item>
+        <item>Bird</item>
+        <item>Cat</item>
+        <item>Chameleon</item>
+        <item>Chicken</item>
+        <item>Chinchilla</item>
+        <item>Cow</item>
+        <item>Dog</item>
+        <item>Ferret</item>
+        <item>Fish</item>
+        <item>Frog</item>
+        <item>Gecko</item>
+        <item>Goat</item>
+        <item>Guinea Pig</item>
+        <item>Hamster</item>
+        <item>Hedgehog</item>
+        <item>Horse</item>
+        <item>Iguana</item>
+        <item>Lizard</item>
+        <item>Mouse</item>
+        <item>Parrot</item>
+        <item>Pig</item>
+        <item>Rabbit</item>
+        <item>Rat</item>
+        <item>Sheep</item>
+        <item>Snake</item>
+        <item>Spider</item>
+        <item>Squirrel</item>
+        <item>Tortoise</item>
+        <item>Turtle</item>
+        <item>Unknown</item>
+    </string-array>
 
 </resources>

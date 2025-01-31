@@ -2,11 +2,7 @@ package com.example.finalproject.firebase
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FieldValue
 
 
 /**
@@ -76,8 +72,8 @@ data class Pet(
     var dob: String? = null,
     var species: Species = Species.UNKNOWN,
     var breed: String = "",
-    var allergies: MutableList<String> = mutableListOf(),
-    var diseases: MutableList<String> = mutableListOf(),
+    var allergies: List<String> = mutableListOf(),
+    var diseases: List<String> = mutableListOf(),
     var weight: Double,
     var gender: Gender = Gender.UNKNOWN,
     var feedingTime: MutableList<String> = mutableListOf(),

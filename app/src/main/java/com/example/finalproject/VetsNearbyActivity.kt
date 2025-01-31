@@ -41,9 +41,12 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityVetsNearby2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val petId = intent.getStringExtra("petId")
+
         val goBackButton = findViewById<Button>(R.id.btn_find_vets_go_back)
         goBackButton.setOnClickListener {
             val intent = Intent(this, MainPageActivity::class.java)
+            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
@@ -82,7 +85,7 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
 
                 Log.d("VetsNearbyActivity", "User location: $currentLatLng")
-                findNearbyPlaces("veterinary_care", 5000)
+                findNearbyPlaces("veterinary_care", 500000)
             } else {
                 Log.e("VetsNearbyActivity", "Could not retrieve location.")
             }

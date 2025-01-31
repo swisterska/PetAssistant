@@ -35,6 +35,7 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
         private val petIcon: ImageButton = itemView.findViewById(R.id.petIconImageView)
         private val petName: TextView = itemView.findViewById(R.id.petNameTextView)
         private val petSpecies: TextView = itemView.findViewById(R.id.petSpeciesTextView)
+        private val editButton: ImageButton = itemView.findViewById(R.id.editButton) // Add this
 
         fun bind(pet: Pet) {
             petName.text = pet.name ?: "Unknown Pet"
@@ -42,22 +43,26 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
 
             // Load image using Glide, or set default
             if (!pet.iconUri.isNullOrEmpty()) {
-                Log.d("PetAdapter", "Loading image for ${pet.name} from ${pet.iconUri}")
                 Glide.with(itemView.context)
-                    .load(pet.iconUri)  // Ensure this contains a valid URL
+                    .load(pet.iconUri)
                     .placeholder(R.drawable.dogicon)
                     .error(R.drawable.dogicon)
                     .into(petIcon)
-
             } else {
-                Log.d("PetAdapter", "Using default image for ${pet.name}")
                 petIcon.setImageResource(R.drawable.dogicon)
             }
 
             // Click listener for pet selection
             itemView.setOnClickListener {
-                Log.d("PetAdapter", "Pet clicked: ${pet.name}, ID: ${pet.id}")
                 onPetClick(pet)
+            }
+
+            // Click listener for edit button
+            editButton.setOnClickListener {
+                val context = itemView.context
+                if (context is ChooseYourPetActivity) {
+                    context.showEditPetDialog(pet)
+                }
             }
         }
     }
