@@ -67,6 +67,15 @@
         android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"/>
 
+    <!-- Button to clear the selected time -->
+    <Button
+        android:id="@+id/clearTimeFoodNotif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="clear"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"/>
+
     <!-- TextView to display the set timestamps -->
     <TextView
         android:id="@+id/timestampsTextView"
