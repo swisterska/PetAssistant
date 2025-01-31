@@ -46,6 +46,7 @@
         android:layout_width="315dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:inputType="textPassword"
         android:hint="Password" />
 
     <Button
