@@ -29,6 +29,10 @@ import java.time.format.DateTimeFormatter
  */
 class RegisterPetActivity : AppCompatActivity() {
 
+    private lateinit var dogIcon: ImageButton
+    private lateinit var catIcon: ImageButton
+    private lateinit var rabbitIcon: ImageButton
+    private lateinit var snakeIcon: ImageButton
     private lateinit var petNameInput: EditText
     private lateinit var speciesSpinner: Spinner
     private lateinit var breedInput: EditText
@@ -41,11 +45,13 @@ class RegisterPetActivity : AppCompatActivity() {
     private lateinit var selectIconBtn: ImageButton
     private var selectedButton: ImageButton? = null
 
-
+    private var selectedIconUri: String? = null  // To store the selected icon URI
     private var iconUri: Uri? = null
     private var selectedIconResId: Int? = null
     private val GALLERY_REQUEST_CODE = 100
     private var selectedDob: LocalDate? = null
+
+    private val whiteBorder = R.drawable.selectediconframe
 
     /**
      * Called when the activity is created. Sets up the UI components, including spinners for species and gender,
@@ -75,6 +81,7 @@ class RegisterPetActivity : AppCompatActivity() {
         registerPetBtn = findViewById(R.id.registerPetBtn)
         selectIconBtn = findViewById(R.id.selectIconBtn)
 
+
         val speciesList = mutableListOf("*Species").apply {
             addAll(Species.values().map { it.name })
         }
@@ -91,7 +98,8 @@ class RegisterPetActivity : AppCompatActivity() {
             override fun onNothingSelected(parentView: AdapterView<*>) {
 
             }
-        })
+        }
+        )
 
         val genderList = mutableListOf("Gender").apply {
             addAll(Gender.values().map { it.name })
@@ -101,19 +109,35 @@ class RegisterPetActivity : AppCompatActivity() {
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = genderAdapter
 
-        val dogButton = findViewById<ImageButton>(R.id.DogButton)
-        val catButton = findViewById<ImageButton>(R.id.caticon)
-        val rabbitButton = findViewById<ImageButton>(R.id.rabbiticon)
-        val snakeButton = findViewById<ImageButton>(R.id.snakeicon)
-        val selectIconBtn = findViewById<ImageButton>(R.id.selectIconBtn)
+        dogIcon = findViewById(R.id.DogButton)
+        catIcon = findViewById(R.id.caticon)
+        rabbitIcon = findViewById(R.id.rabbiticon)
+        snakeIcon = findViewById(R.id.snakeicon)
+        selectIconBtn = findViewById(R.id.selectIconBtn)
 
-        val iconButtons = listOf(dogButton, catButton, rabbitButton, snakeButton, selectIconBtn)
+        // List of icon buttons to iterate
+        val iconButtons = listOf(dogIcon, catIcon, rabbitIcon, snakeIcon, selectIconBtn)
 
+        // Set the initial click listeners for the icons
         for (button in iconButtons) {
             button.setOnClickListener {
-                selectedButton?.isSelected = false  // Deselect previous button
-                button.isSelected = true  // Select current button
-                selectedButton = button  // Update selected button
+                // Reset border for previously selected button
+                selectedButton?.background = null
+
+                // Set white border around the clicked icon
+                button.background = getDrawable(whiteBorder)
+
+                // Save the clicked button as the selected button
+                selectedButton = button
+
+                // Handle the selection of each icon
+                when (button) {
+                    dogIcon -> savePetProfileIcon("dogicon")
+                    catIcon -> savePetProfileIcon("caticon")
+                    rabbitIcon -> savePetProfileIcon("rabbiticon")
+                    snakeIcon -> savePetProfileIcon("snakeicon")
+                    selectIconBtn -> openGallery()
+                }
             }
         }
 
@@ -173,18 +197,15 @@ class RegisterPetActivity : AppCompatActivity() {
             .filter { it.isNotEmpty() }
             .toMutableList()
 
-        val iconUriString = iconUri?.toString() // Null if no icon was selected.
-
         val dobString = selectedDob?.format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-
-
+        val iconUri = selectedIconResId?.toString() ?: "" // Store the resource ID as a string
 
         // Add logging to verify the collected data
         Log.d("RegisterPetActivity", "Collected Pet Data: Name=$name, Species=$species, Breed=$breed, Weight=$weight, Gender=$gender")
 
         return Pet(
-            iconUri.toString(),
+            iconUri,
             "",
             name ?: "",
             dobString,
@@ -223,8 +244,6 @@ class RegisterPetActivity : AppCompatActivity() {
 
 
 
-
-
     /**
      * Saves the pet data to Firebase. If an icon was selected, it will be uploaded to Firebase Storage.
      * After the icon is uploaded, the pet data will be saved to Firestore.
@@ -232,33 +251,22 @@ class RegisterPetActivity : AppCompatActivity() {
      * @param pet The pet object to be saved to Firebase.
      */
     private fun savePetToFirebase(pet: Pet) {
-        // Check if an icon URI is selected (user uploaded an icon)
-        if (iconUri != null) {
-            // Upload the icon to Firebase Storage
-            val storageRef = FirebaseStorage.getInstance().reference.child("pet_icons/${pet.name}_${System.currentTimeMillis()}.jpg")
-
-            storageRef.putFile(iconUri!!).addOnSuccessListener { taskSnapshot ->
-                // On successful upload, get the download URL of the uploaded icon
-                taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
-                    // Set the pet's icon URI with the download URL of the uploaded image
-                    pet.iconUri = uri.toString()
-                    // Save the pet details to Firestore
-                    savePetDetails(pet)
-                }.addOnFailureListener { exception ->
-                    // Handle error in fetching the download URL
-                    Log.e("savePetToFirebase", "Failed to get download URL: ${exception.message}")
-                    Toast.makeText(this, "Failed to upload icon", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener { exception ->
-                // Handle error in uploading the file
-                Log.e("savePetToFirebase", "Failed to upload icon: ${exception.message}")
-                Toast.makeText(this, "Failed to upload icon", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            // If no icon was uploaded, save the pet data directly to Firestore
-            savePetDetails(pet)
+        // Check if a valid icon has been selected
+        val iconName = when (selectedIconResId) {
+            R.drawable.dogicon -> "dogicon"
+            R.drawable.caticon -> "caticon"
+            R.drawable.rabbiticon -> "rabbiticon"
+            R.drawable.snakeicon -> "snakeicon"
+            else -> "default_icon"  // Use a default icon if no valid icon is selected
         }
+
+        // Save the icon name to the pet object
+        pet.iconUri = iconName
+
+        // Save the pet details to Firestore
+        savePetDetails(pet)
     }
+
 
     /**
      * Saves the pet details to Firestore.
@@ -315,19 +323,21 @@ class RegisterPetActivity : AppCompatActivity() {
     }
 
     /**
-     * Handles the result from the gallery activity when an icon is selected.
-     *
-     * @param requestCode The request code for the activity result.
-     * @param resultCode The result code returned by the activity.
-     * @param data The intent data returned by the activity.
+     * Handles the result from the gallery activity when an image is selected.
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            iconUri = data?.data
-            selectedIconResId = null
+            val selectedImageUri: Uri? = data?.data
+            selectedImageUri?.let {
+                iconUri = it
+                selectedIconUri = it.toString()  // Save URI of selected image
+                // Update the ImageButton with the selected icon (optional)
+                selectIconBtn.setImageURI(iconUri)
+            }
         }
     }
+
 
     /**
      * Navigates to the MainPageActivity after successful pet registration.
@@ -344,5 +354,17 @@ class RegisterPetActivity : AppCompatActivity() {
         startActivity(intent)
         finish() // Close current activity to prevent going back
     }
+
+    /**
+     * Saves the selected pet profile icon to Firestore.
+     */
+    // Method to save the selected icon to Firestore
+    private fun savePetProfileIcon(iconName: String) {
+        selectedIconResId = resources.getIdentifier(iconName, "drawable", packageName)
+
+        // Save the icon name as a string (e.g., "dogicon") in Firestore
+        selectedIconUri = iconName  // Save the resource name (not the ID)
+    }
+
 
 }

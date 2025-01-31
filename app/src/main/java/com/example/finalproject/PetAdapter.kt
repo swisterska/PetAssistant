@@ -41,16 +41,19 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
             petName.text = pet.name ?: "Unknown Pet"
             petSpecies.text = (pet.species ?: "Unknown Species").toString()
 
-            // Load image using Glide, or set default
-            if (!pet.iconUri.isNullOrEmpty()) {
-                Glide.with(itemView.context)
-                    .load(pet.iconUri)
-                    .placeholder(R.drawable.dogicon)
-                    .error(R.drawable.dogicon)
-                    .into(petIcon)
-            } else {
-                petIcon.setImageResource(R.drawable.dogicon)
+            // Load the selected icon from Firestore and set it to ImageButton
+            val defaultIcon = R.drawable.dogicon  // Default icon
+
+            // Use iconUri from Firestore to determine the correct icon
+            val iconResId = when (pet.iconUri) {
+                "dogicon" -> R.drawable.dogicon
+                "caticon" -> R.drawable.caticon
+                "rabbiticon" -> R.drawable.rabbiticon
+                "snakeicon" -> R.drawable.snakeicon
+                else -> defaultIcon // Fallback to default if no match
             }
+
+            petIcon.setImageResource(iconResId)  // Set the correct icon
 
             // Click listener for pet selection
             itemView.setOnClickListener {
