@@ -4,140 +4,156 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.*
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.example.finalproject.googleMaps.GooglePlacesService
-import com.example.finalproject.googleMaps.NearbyVet
-import com.example.finalproject.googleMaps.PlacesResponse
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.example.finalproject.databinding.ActivityVetsNearby2Binding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import org.json.JSONException
+import org.json.JSONObject
 
-class VetsNearbyActivity : AppCompatActivity() {
+class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var mMap: GoogleMap
+    private lateinit var binding: ActivityVetsNearby2Binding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var vetListView: ListView
-    private lateinit var adapter: ArrayAdapter<String>
-    private val vetsList = mutableListOf<NearbyVet>()
+    private var lastKnownLocation: Location? = null
 
-    private val API_KEY = "AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4"  // Ensure this is correct and valid
-    private val BASE_URL = "https://maps.googleapis.com/maps/api/"
-
-    private val TAG = "VetsNearbyActivity"  // For logging purposes
+    companion object {
+        private const val LOCATION_REQUEST_CODE = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_vets_nearby)
 
-        val petId = intent.getStringExtra("petId")
+        binding = ActivityVetsNearby2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val returnButton = findViewById<ImageButton>(R.id.GoBackButtonVetsNearby)
-        returnButton.setOnClickListener {
+        val goBackButton = findViewById<Button>(R.id.btn_find_vets_go_back)
+        goBackButton.setOnClickListener {
             val intent = Intent(this, MainPageActivity::class.java)
-            intent.putExtra("petId", petId)
             startActivity(intent)
         }
 
-        //vetListView = findViewById(R.id.vetListView)
+        // Initialize location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Check for location permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Location permission required!", Toast.LENGTH_SHORT).show()
+        // Obtain the SupportMapFragment and get notified when the map is ready
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        mMap.uiSettings.isZoomControlsEnabled = true
+        setUpMap()
+    }
+
+    private fun setUpMap() {
+        if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_REQUEST_CODE
+            )
             return
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        mMap.isMyLocationEnabled = true
+
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (location != null) {
-                Log.d(TAG, "Location retrieved: Lat: ${location.latitude}, Lng: ${location.longitude}")
-                fetchNearbyVets(location.latitude, location.longitude)
+                lastKnownLocation = location
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
+
+                Log.d("VetsNearbyActivity", "User location: $currentLatLng")
+                findNearbyPlaces("veterinary_care", 5000)
             } else {
-                Log.e(TAG, "Location is null")
-                Toast.makeText(this, "Could not get location", Toast.LENGTH_SHORT).show()
+                Log.e("VetsNearbyActivity", "Could not retrieve location.")
             }
+        }.addOnFailureListener { e ->
+            Log.e("VetsNearbyActivity", "Failed to get location: ${e.message}")
         }
     }
 
-    private fun fetchNearbyVets(lat: Double, lng: Double) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    private fun findNearbyPlaces(type: String, radius: Int) {
+        val location = lastKnownLocation
+        if (location == null) {
+            Log.e("VetsNearbyActivity", "User location is null, cannot find places.")
+            return
+        }
 
-        val service = retrofit.create(GooglePlacesService::class.java)
+        val apiKey = getString(R.string.google_maps_key)
+        val locationString = "${location.latitude},${location.longitude}"
+        val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+                "location=$locationString&radius=$radius&type=$type&key=$apiKey"
 
-        // Use a broader keyword search (veterinary or animal hospital) instead of specific type
-        val call = service.getNearbyVets(
-            location = "$lat,$lng",
-            radius = 5000000,  // Increased radius to 50km
-            keyword = "university",  // Searching by keyword instead of place type
-            apiKey = API_KEY
-        )
 
-        call.enqueue(object : Callback<PlacesResponse> {
-            override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
-                if (response.isSuccessful) {
-                    val places = response.body()?.results ?: emptyList()
-                    Log.d(TAG, "API call success, found ${places.size} places.")
-                    if (places.isEmpty()) {
-                        Toast.makeText(this@VetsNearbyActivity, "No nearby vets found.", Toast.LENGTH_SHORT).show()
+
+
+        Log.d("API Request", "Requesting: $url")
+
+        val request = object : StringRequest(Method.GET, url,
+            Response.Listener { response ->
+                Log.d("API Response", response)
+                try {
+                    val jsonObject = JSONObject(response)
+                    val results = jsonObject.getJSONArray("results")
+                    mMap.clear()
+
+                    if (results.length() == 0) {
+                        Log.w("VetsNearbyActivity", "No nearby places found.")
                     }
 
-                    vetsList.clear()
-                    places.forEach { place ->
-                        vetsList.add(
-                            NearbyVet(
-                                name = place.name,
-                                address = place.vicinity,
-                                latitude = place.geometry.location.lat,
-                                longitude = place.geometry.location.lng
-                            )
+                    for (i in 0 until results.length()) {
+                        val place = results.getJSONObject(i)
+                        val location = place.getJSONObject("geometry").getJSONObject("location")
+                        val lat = location.getDouble("lat")
+                        val lng = location.getDouble("lng")
+                        val placeName = place.getString("name")
+
+                        mMap.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(lat, lng))
+                                .title(placeName)
                         )
                     }
-                    updateListView(lat, lng)
-                } else {
-                    Log.e(TAG, "API response failed: ${response.code()} - ${response.message()}")
-                    Toast.makeText(this@VetsNearbyActivity, "Failed to fetch data", Toast.LENGTH_SHORT).show()
+                } catch (e: JSONException) {
+                    Log.e("VetsNearbyActivity", "JSON parsing error: ${e.message}")
                 }
-            }
+            },
+            Response.ErrorListener { error ->
+                Log.e("VetsNearbyActivity", "Error fetching places: ${error.message}")
+            }) {}
 
-            override fun onFailure(call: Call<PlacesResponse>, t: Throwable) {
-                Log.e(TAG, "API call failure: ${t.message}")
-                Toast.makeText(this@VetsNearbyActivity, "Error fetching vets!", Toast.LENGTH_SHORT).show()
-            }
-        })
+        Volley.newRequestQueue(this).add(request)
     }
 
-
-    private fun updateListView(currentLat: Double, currentLng: Double) {
-        if (vetsList.isEmpty()) {
-            Log.d(TAG, "No vets found to display")
-            return
-        }
-
-        vetsList.sortBy { vet ->
-            val results = FloatArray(1)
-            Location.distanceBetween(currentLat, currentLng, vet.latitude, vet.longitude, results)
-            results[0] // Distance in meters
-        }
-
-        val vetNames = vetsList.map { "${it.name} - ${it.address}" }
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, vetNames)
-        vetListView.adapter = adapter
-
-        // Open Google Maps for directions when an item is clicked
-        vetListView.setOnItemClickListener { _, _, position, _ ->
-            val vet = vetsList[position]
-            val gmmIntentUri = Uri.parse("google.navigation:q=${vet.latitude},${vet.longitude}")
-            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            startActivity(mapIntent)
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setUpMap()
+            } else {
+                Log.e("VetsNearbyActivity", "Location permission denied.")
+            }
         }
     }
 }

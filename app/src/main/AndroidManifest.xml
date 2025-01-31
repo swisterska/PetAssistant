@@ -14,10 +14,8 @@
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-
-
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -30,28 +28,6 @@
         android:theme="@style/Theme.FinalProject"
         tools:targetApi="31">
 
-        <activity
-            android:name=".EmergencyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".VetsNearbyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SymptomsAddActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WaterTimesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FoodTimesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HealthInfoView"
-            android:exported="false" />
-
-        <receiver
-            android:name=".NotificationReceiver"
-            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -65,7 +41,27 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCewp-_PI8PKRUHLRZT0QZ8-72gn-JTXW4" />
+            android:value="@string/google_maps_key"/>
+
+        <activity
+            android:name=".VetsNearbyActivity"
+            android:exported="false"
+            android:label="@string/title_activity_vets_nearby" />
+        <activity
+            android:name=".EmergencyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SymptomsAddActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WaterTimesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FoodTimesActivity"
+            android:exported="false" />
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="false" />
 
         <activity
             android:name=".RegisterPetActivity"
