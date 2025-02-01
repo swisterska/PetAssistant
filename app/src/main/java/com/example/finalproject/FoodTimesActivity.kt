@@ -29,7 +29,7 @@ class FoodTimesActivity : AppCompatActivity() {
 
     private lateinit var timePicker: TimePicker
     private lateinit var setTimeButton: Button
-    private lateinit var clearTimeButton: Button
+    private lateinit var clearTimeButton: ImageButton
     private lateinit var timestampsTextView: TextView
     private val timestamps = mutableListOf<String>()
 
@@ -202,7 +202,7 @@ class FoodTimesActivity : AppCompatActivity() {
         timestampsTextView.text = if (timestampsList.isEmpty()) {
             "No feeding times set."
         } else {
-            "Scheduled Times:\n$timestampsList"
+            "$timestampsList"
         }
     }
 

@@ -32,7 +32,6 @@
 
     </LinearLayout>
 
-    <!-- TextView below the ImageButton -->
     <TextView
         android:id="@+id/FoodTimesText"
         android:layout_width="match_parent"
@@ -51,7 +50,7 @@
     <TimePicker
         android:id="@+id/timePickerFood"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:gravity="center"
@@ -62,28 +61,63 @@
         android:id="@+id/setTimeFoodNotif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Time"
+        android:layout_centerHorizontal="true"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_marginTop="10dp"
+        android:text="Set Time" />
 
-    <!-- Button to clear the selected time -->
-    <Button
-        android:id="@+id/clearTimeFoodNotif"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="clear"
-        android:layout_gravity="center"
-        android:layout_centerHorizontal="true"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#0D0C0C"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/TimesText"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:fontFamily="@font/glikerblackfont"
+        android:text="Scheduled timestamps for food:"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:ellipsize="none"
+        android:singleLine="false"
+        android:lines="2"
+        android:scrollHorizontally="false"
+        android:padding="10dp"/>
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp"/>
 
     <!-- TextView to display the set timestamps -->
     <TextView
         android:id="@+id/timestampsTextView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:text="Your scheduled timestamps will appear here.."
         android:textSize="18sp"
         android:gravity="center"
         android:layout_gravity="center"
         android:paddingTop="16dp"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="11dp"/>
+
+    <!-- Button to clear the selected time -->
+    <ImageButton
+        android:id="@+id/clearTimeFoodNotif"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:src="@drawable/cleartimesbutton"
+        android:background="#00FFFFFF"
+        android:layout_centerHorizontal="true"/>
 </LinearLayout>

@@ -29,7 +29,7 @@ class WaterTimesActivity : AppCompatActivity() {
 
     private lateinit var timePickerW: TimePicker
     private lateinit var setTimeButtonW: Button
-    private lateinit var clearTimeButtonW: Button
+    private lateinit var clearTimeButtonW: ImageButton
     private lateinit var timestampsTextViewW: TextView
     private val timestampsW = mutableListOf<String>()
 
@@ -198,7 +198,7 @@ class WaterTimesActivity : AppCompatActivity() {
         timestampsTextViewW.text = if (timestampsList.isEmpty()) {
             "No water times set."
         } else {
-            "Scheduled Times:\n$timestampsList"
+            "$timestampsList"
         }
     }
 
