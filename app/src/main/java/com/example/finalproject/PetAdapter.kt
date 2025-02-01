@@ -42,7 +42,7 @@ class PetAdapter(private val pets: List<Pet>, private val onPetClick: (Pet) -> U
             petSpecies.text = (pet.species ?: "Unknown Species").toString()
 
             // Load the selected icon from Firestore and set it to ImageButton
-            val defaultIcon = R.drawable.dogicon  // Default icon
+            val defaultIcon = R.drawable.defaulticon  // Default icon
 
             // Use iconUri from Firestore to determine the correct icon
             val iconResId = when (pet.iconUri) {
