@@ -118,23 +118,28 @@ class EmergencyActivity : AppCompatActivity() {
      * Starts the countdown timer.
      */
     private fun startCountdown() {
+        var secondsRemaining = 5 // Correctly count down from 5 to 1
+
         val countdownTimer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 if (isStopped) {
                     cancel()
                 } else {
-                    countdownTimerText.text = (millisUntilFinished / 1000).toString()
+                    countdownTimerText.text = secondsRemaining.toString()
+                    secondsRemaining-- // Decrease manually to ensure correct countdown
                 }
             }
 
             override fun onFinish() {
                 if (!isStopped) {
+                    countdownTimerText.text = "0" // Display 0 at the end
                     sendSmsToVet()
                 }
             }
         }
         countdownTimer.start()
     }
+
 
     /**
      * Sends an SMS to the vet when the countdown finishes.

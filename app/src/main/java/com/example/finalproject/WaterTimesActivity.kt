@@ -196,7 +196,7 @@ class WaterTimesActivity : AppCompatActivity() {
 
         // Update the TextView with the formatted string
         timestampsTextViewW.text = if (timestampsList.isEmpty()) {
-            "No feeding times set."
+            "No water times set."
         } else {
             "$timestampsList"
         }
@@ -209,24 +209,24 @@ class WaterTimesActivity : AppCompatActivity() {
             .collection("users")
             .document(userId)
             .collection("pets")
-            .document(petID)  // Use the petID passed to this function
+            .document(petID)
 
         // Set the feeding time list to an empty list in Firestore
-        dbRef.update("feedingTime", FieldValue.arrayRemove(*timestampsW.toTypedArray()))
+        dbRef.update("waterChangeTime", FieldValue.arrayRemove(*timestampsW.toTypedArray()))
             .addOnSuccessListener {
-                Log.d("Firestore", "All feeding times deleted successfully for pet $petID")
+                Log.d("Firestore", "All water times deleted successfully for pet $petID")
                 // Clear the list of timestamps and update the UI
                 timestampsW.clear()
                 updateTimestampsTextView()
 
                 // Show a Toast indicating that the times were deleted
-                Toast.makeText(this, "All feeding times deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "All water times deleted", Toast.LENGTH_SHORT).show()
 
                 // Optionally reload feeding times to ensure list is empty
                 loadWaterTimesFromFirestore(petID)
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error deleting feeding times for pet $petID", e)
+                Log.e("Firestore", "Error deleting water times for pet $petID", e)
             }
     }
 
