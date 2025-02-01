@@ -1,32 +1,31 @@
 package com.example.finalproject
 
-// Import your custom classes (Pet, Gender, Species) from the firebase package
+
 import com.example.finalproject.firebase.Pet
 import com.example.finalproject.firebase.Gender
 import com.example.finalproject.firebase.Species
 
-// Other necessary imports
-import android.app.Activity
+
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.View
 import android.widget.*
-import androidx.annotation.RequiresApi
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.storage.FirebaseStorage
-import java.time.LocalDate
+import androidx.room.util.copy
+import com.example.finalproject.firebase.User
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.time.format.DateTimeFormatter
+
 
 
 class ChooseYourPetActivity : AppCompatActivity() {
@@ -55,6 +54,11 @@ class ChooseYourPetActivity : AppCompatActivity() {
             val intent = Intent(this, MainPageActivity::class.java)
             intent.putExtra("petId", pet.id)
             startActivity(intent)
+        }
+
+        val settingsButton = findViewById<ImageButton>(R.id.settings)
+        settingsButton.setOnClickListener { view ->
+            showPopupMenu(view)
         }
 
         petsRecyclerView.adapter = petAdapter
@@ -221,4 +225,106 @@ class ChooseYourPetActivity : AppCompatActivity() {
 
         datePickerDialog.show()
     }
-}
+
+    private fun showPopupMenu(view: View) {
+        val popup = PopupMenu(this, view)
+        popup.menuInflater.inflate(R.menu.settings_menu, popup.menu)
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit_profile -> {
+                    showEditProfileDialog()
+                    true
+                }
+                R.id.action_logout -> {
+                    FirebaseAuth.getInstance().signOut()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+
+
+    private fun showEditProfileDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        // Find views
+        val editName = dialogView.findViewById<EditText>(R.id.editProfileName)
+        val saveButton = dialogView.findViewById<Button>(R.id.saveProfileChangesButton)
+        val cancelButton = dialogView.findViewById<Button>(R.id.cancelProfileChangesButton)
+
+        // Get current user
+        val user = FirebaseAuth.getInstance().currentUser
+        val db = FirebaseFirestore.getInstance()
+        val userId = user?.uid ?: return
+
+        // Load existing name from Firestore
+        val userRef = db.collection("users").document(userId)
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                editName.setText(document.getString("name") ?: "") // Set current name
+            }
+        }
+
+
+
+        // Save changes
+        saveButton.setOnClickListener {
+            val updatedName = editName.text.toString().trim()
+
+            if (updatedName.isNotEmpty()) {
+                updateUserNameInFirestore(userId, updatedName)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "Name cannot be empty!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        cancelButton.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+    }
+
+    // Function to update Firestore
+    private fun updateUserNameInFirestore(userId: String, updatedName: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("name", updatedName)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+
+
+    private fun deleteUserFromFirestore() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(userId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(this, "User removed.", Toast.LENGTH_SHORT).show()
+
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to remove user.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+} 

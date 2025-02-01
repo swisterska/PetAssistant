@@ -24,7 +24,6 @@
             android:src="@drawable/gobackcimpleblack"
             android:layout_marginEnd="10dp"/>
 
-        <!-- Empty space to allow TextView to take available space -->
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"

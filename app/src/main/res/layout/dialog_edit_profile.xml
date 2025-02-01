@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="500dp"
+    android:orientation="vertical"
+    android:background="@drawable/profileeditback"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Profile"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/glikerblackfont"
+        android:layout_gravity="center" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <EditText
+        android:id="@+id/editProfileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="User name" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+
+    <Button
+        android:id="@+id/saveProfileChangesButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Changes" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <Button
+        android:id="@+id/cancelProfileChangesButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel" />
+</LinearLayout>
