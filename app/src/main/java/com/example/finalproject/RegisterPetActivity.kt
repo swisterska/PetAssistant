@@ -87,6 +87,7 @@ class RegisterPetActivity : AppCompatActivity() {
             addAll(Species.values().map { it.name })
         }
 
+
         val speciesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, speciesList)
         speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         speciesSpinner.adapter = speciesAdapter
@@ -301,7 +302,6 @@ class RegisterPetActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
     /**

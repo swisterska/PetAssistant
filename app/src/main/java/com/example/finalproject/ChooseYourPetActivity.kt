@@ -123,28 +123,34 @@ class ChooseYourPetActivity : AppCompatActivity() {
         val genderSpinner: Spinner = dialogView.findViewById(R.id.editGenderSpinner)
         val genderAdapter = ArrayAdapter.createFromResource(
             this,
-            R.array.gender_array, // Create this string array resource
+            R.array.gender_array,
             android.R.layout.simple_spinner_item
         )
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = genderAdapter
 
-        // Setup the Species Spinner
+       // Setup the Species Spinner
         val speciesSpinner: Spinner = dialogView.findViewById(R.id.editSpeciesSpinner)
         val speciesAdapter = ArrayAdapter.createFromResource(
             this,
-            R.array.species_array, // Create this string array resource
+            R.array.species_array,
             android.R.layout.simple_spinner_item
         )
         speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         speciesSpinner.adapter = speciesAdapter
 
-        // Get the Gender and Species from the Pet object
-        val genderPosition = genderAdapter.getPosition(pet.gender.name.capitalize())
-        genderSpinner.setSelection(genderPosition)
+        // Convert pet's Gender and Species to match the Spinner values
+        val genderString = pet.gender.name.replace("_", " ").lowercase(Locale.ROOT).capitalize(Locale.ROOT)
+        val speciesString = pet.species.name.replace("_", " ").lowercase(Locale.ROOT).capitalize(Locale.ROOT)
 
-        val speciesPosition = speciesAdapter.getPosition(pet.species.name.capitalize())
+        // Find the matching index in the spinner
+        val genderPosition = genderAdapter.getPosition(genderString).takeIf { it >= 0 } ?: 0
+        val speciesPosition = speciesAdapter.getPosition(speciesString).takeIf { it >= 0 } ?: 0
+
+        // Set the spinner selections
+        genderSpinner.setSelection(genderPosition)
         speciesSpinner.setSelection(speciesPosition)
+
 
         // Pre-fill pet data
         val editPetName = dialogView.findViewById<EditText>(R.id.editPetName)
@@ -245,6 +251,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
             editText.setText(selectedDate)  // Set the selected date in the EditText
         }, year, month, day)
 
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
 
@@ -304,7 +311,6 @@ class ChooseYourPetActivity : AppCompatActivity() {
                 editName.setText(document.getString("name") ?: "") // Set current name
             }
         }
-
 
 
         // Save changes

@@ -96,16 +96,24 @@
         android:layout_width="match_parent"
         android:layout_height="5dp"/>
 
-    <!-- TextView to display the set timestamps -->
-    <TextView
-        android:id="@+id/timestampsTextView"
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:text="Your scheduled timestamps will appear here.."
-        android:textSize="18sp"
-        android:gravity="center"
         android:layout_gravity="center"
-        android:paddingTop="16dp"/>
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/timestampsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your scheduled timestamps will appear here.."
+            android:textSize="18sp"
+            android:gravity="center"
+            android:paddingTop="16dp"/>
+    </ScrollView>
+
+
 
     <Space
         android:layout_width="match_parent"
@@ -120,4 +128,6 @@
         android:src="@drawable/cleartimesbutton"
         android:background="#00FFFFFF"
         android:layout_centerHorizontal="true"/>
+
+
 </LinearLayout>

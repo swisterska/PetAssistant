@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
@@ -59,6 +60,9 @@ class WaterTimesActivity : AppCompatActivity() {
             intent.putExtra("petId", petId)
             startActivity(intent)
         }
+        val timestampsTextView = findViewById<TextView>(R.id.timestampsTextViewW)
+        timestampsTextView.movementMethod = ScrollingMovementMethod()
+
 
         // Set time button functionality to store and schedule a water change reminder
         setTimeButtonW.setOnClickListener {
