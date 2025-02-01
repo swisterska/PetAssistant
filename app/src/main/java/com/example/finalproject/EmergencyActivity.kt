@@ -31,6 +31,7 @@ class EmergencyActivity : AppCompatActivity() {
 
     private var petName: String = "Unknown Pet"
     private var userName: String = "Unknown User"
+    private var petSpecies: String = "Species Undefined"
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -95,6 +96,7 @@ class EmergencyActivity : AppCompatActivity() {
                 petRef.get().addOnSuccessListener { petDocument ->
                     if (petDocument.exists()) {
                         petName = petDocument.getString("name") ?: "Unknown Pet"
+                        petSpecies = petDocument.getString("species") ?: "Species Undefined"
 
                         // Data fetching complete, execute callback
                         onComplete()
@@ -138,7 +140,7 @@ class EmergencyActivity : AppCompatActivity() {
      * Sends an SMS to the vet when the countdown finishes.
      */
     private fun sendSmsToVet() {
-        val smsMessage = "Pet $petName owned by $userName has an emergency. They will likely visit you soon."
+        val smsMessage = "Pet $petName (${petSpecies.lowercase()}) owned by $userName has an emergency. They will likely visit you soon."
         try {
             val smsManager = SmsManager.getDefault()
             smsManager.sendTextMessage(vetPhoneNumber, null, smsMessage, null, null)
