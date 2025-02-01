@@ -40,17 +40,6 @@
 
     </Button>
 
-    <Button
-        android:id="@+id/Break"
-        android:layout_width="121dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#A7D3E9"
-        android:text="Register"
-        android:textColor="#1D385B"
-        android:textStyle="bold"
-        android:layout_marginTop="10dp">
-
-    </Button>
 
 
 </LinearLayout>

@@ -67,8 +67,6 @@ class MainPageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-
         // Set up the "Vets Nearby" button to navigate to the VetsNearbyActivity when clicked
         val VetsNearbyButton = findViewById<ImageButton>(R.id.VetsNearbyButton)
         VetsNearbyButton.setOnClickListener {
@@ -97,7 +95,12 @@ class MainPageActivity : AppCompatActivity() {
     }
 
     /**
-     * Fetch the pet's name from Firestore and set it in the TextView.
+     * Fetches the pet's name from Firestore and updates the given TextView.
+     * If the pet is not found or an error occurs, a fallback message is displayed.
+     *
+     * @param context The calling activity.
+     * @param petId The pet's unique ID.
+     * @param petNameTextView The TextView to update.
      */
     private fun fetchPetName(@SuppressLint("RestrictedApi") context: MainPageActivity, petId: String, petNameTextView: TextView) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return

@@ -4,9 +4,21 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import android.util.Log
 
+/**
+ * FirestoreClass is responsible for handling interactions with Firestore.
+ * It provides methods to register or update user data in the Firestore database.
+ */
 class FirestoreClass {
 
+    // Instance of Firebase Firestore
     private val mFireStore = FirebaseFirestore.getInstance()
+
+    /**
+     * Registers a new user or updates an existing user's data in Firestore.
+     *
+     * @param user The User object containing user details to be saved.
+     * @throws Exception If there is an error while saving user data.
+     */
 
     suspend fun registerOrUpdateUser(user: User) {
         try {
@@ -15,28 +27,6 @@ class FirestoreClass {
         } catch (e: Exception) {
             Log.e("FirestoreClass", "Error saving user data: ${e.message}", e)
             throw Exception("Error saving user data: ${e.message}")
-        }
-    }
-
-    suspend fun loadUserData(userId: String): Map<String, Any>? {
-        return try {
-            val documentSnapshot = mFireStore.collection("users").document(userId).get().await()
-            documentSnapshot.data
-        } catch (e: Exception) {
-            Log.e("FirestoreClass", "Error loading user data: ${e.message}", e)
-            throw Exception("Error loading user data: ${e.message}")
-        }
-    }
-
-    suspend fun updateUserData(userId: String, updatedData: Map<String, Any?>) {
-        try {
-            val filteredData = updatedData.filterValues { it != null && !(it is String && it.isBlank()) }
-            if (filteredData.isNotEmpty()) {
-                mFireStore.collection("users").document(userId).update(filteredData).await()
-            }
-        } catch (e: Exception) {
-            Log.e("FirestoreClass", "Error updating user data: ${e.message}", e)
-            throw Exception("Error updating user data: ${e.message}")
         }
     }
 }

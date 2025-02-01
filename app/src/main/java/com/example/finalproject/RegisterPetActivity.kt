@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.finalproject.firebase.Gender
 import com.example.finalproject.firebase.Pet
 import com.example.finalproject.firebase.Species
-import com.google.firebase.storage.FirebaseStorage
 import java.time.LocalDate
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
@@ -24,8 +23,9 @@ import java.time.format.DateTimeFormatter
 
 
 /**
- * RegisterPetActivity handles the process of registering a new pet by allowing the user to input pet details,
- * select a species, gender, date of birth, and upload an icon. The pet data is then stored in Firebase.
+ * RegisterPetActivity manages the process of registering a new pet by allowing the user to input pet details,
+ * such as name, species, breed, weight, gender, allergies, diseases, date of birth, and selecting an icon.
+ * After the data is entered, it is stored in Firebase Firestore.
  */
 class RegisterPetActivity : AppCompatActivity() {
 
@@ -54,8 +54,8 @@ class RegisterPetActivity : AppCompatActivity() {
     private val whiteBorder = R.drawable.selectediconframe
 
     /**
-     * Called when the activity is created. Sets up the UI components, including spinners for species and gender,
-     * and click listeners for the buttons.
+     * Initializes the activity, sets up UI components, and attaches listeners to buttons and spinners.
+     * Handles the click events for selecting pet icons, date of birth, and registering the pet.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +68,7 @@ class RegisterPetActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Initialize input fields and buttons
         petNameInput = findViewById(R.id.petNameInput)
         speciesSpinner = findViewById(R.id.speciesInput)
         breedInput = findViewById(R.id.breedInput)
@@ -81,7 +82,7 @@ class RegisterPetActivity : AppCompatActivity() {
         registerPetBtn = findViewById(R.id.registerPetBtn)
         selectIconBtn = findViewById(R.id.selectIconBtn)
 
-
+        // Populate species spinner with values
         val speciesList = mutableListOf("*Species").apply {
             addAll(Species.values().map { it.name })
         }
@@ -101,6 +102,7 @@ class RegisterPetActivity : AppCompatActivity() {
         }
         )
 
+        // Populate gender spinner with values
         val genderList = mutableListOf("Gender").apply {
             addAll(Gender.values().map { it.name })
         }
@@ -141,10 +143,13 @@ class RegisterPetActivity : AppCompatActivity() {
             }
         }
 
+        // Handle click event for the "Select Icon" button
         selectIconBtn.setOnClickListener { openGallery() }
 
+        // Handle click event for date of birth input
         dobInput.setOnClickListener { showDatePickerDialog() }
 
+        // Handle click event for "Register Pet" button
         registerPetBtn.setOnClickListener {
             Log.d("RegisterPetActivity", "Register button clicked")
             val pet = collectPetData()
@@ -245,10 +250,9 @@ class RegisterPetActivity : AppCompatActivity() {
 
 
     /**
-     * Saves the pet data to Firebase. If an icon was selected, it will be uploaded to Firebase Storage.
-     * After the icon is uploaded, the pet data will be saved to Firestore.
+     * Saves the pet data to Firebase Firestore and uploads the selected icon if available.
      *
-     * @param pet The pet object to be saved to Firebase.
+     * @param pet The Pet object containing the data to be saved.
      */
     private fun savePetToFirebase(pet: Pet) {
         // Check if a valid icon has been selected
@@ -338,10 +342,11 @@ class RegisterPetActivity : AppCompatActivity() {
         }
     }
 
-
     /**
      * Navigates to the MainPageActivity after successful pet registration.
-     * Passes the user's email and the registered pet's ID as extras.
+     * Passes the user's email and the pet's ID.
+     *
+     * @param petId The ID of the registered pet.
      */
     open fun goToMainPageActivity(petId: String) {
         val user = FirebaseAuth.getInstance().currentUser
@@ -357,8 +362,9 @@ class RegisterPetActivity : AppCompatActivity() {
 
     /**
      * Saves the selected pet profile icon to Firestore.
+     *
+     * @param iconName The name of the selected icon resource.
      */
-    // Method to save the selected icon to Firestore
     private fun savePetProfileIcon(iconName: String) {
         selectedIconResId = resources.getIdentifier(iconName, "drawable", packageName)
 

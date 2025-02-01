@@ -17,10 +17,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 /**
- * NotificationReceiver handles notifications for both food and water reminders.
+ * NHandles notifications for both food and water reminders.
  */
 class NotificationReceiver : BroadcastReceiver() {
 
+    /**
+     * Called when the alarm triggers, retrieves the pet's name, and displays a notification.
+     *
+     * @param context The application context.
+     * @param intent The received intent containing reminder details.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
         val reminderType = intent.getStringExtra("REMINDER_TYPE") ?: "Food"
@@ -34,7 +40,11 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     /**
-     * Fetch the pet's name from Firestore and show a notification.
+     * Fetches the pet's name from Firestore and triggers a notification.
+     *
+     * @param context The application context.
+     * @param petId The unique ID of the pet.
+     * @param reminderType The type of reminder ("Food" or "Water").
      */
     private fun fetchPetName(context: Context, petId: String, reminderType: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -54,7 +64,11 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     /**
-     * Displays a notification with the pet's name.
+     * Displays a notification reminding the user to feed or change their pet’s water.
+     *
+     * @param context The application context.
+     * @param petName The pet's name.
+     * @param reminderType The type of reminder ("Food" or "Water").
      */
     private fun showNotification(context: Context, petName: String, reminderType: String) {
         createNotificationChannel(context)
@@ -87,7 +101,9 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     /**
-     * Creates a notification channel if necessary.
+     * Creates a notification channel for pet reminders (required for Android 8.0+).
+     *
+     * @param context The application context.
      */
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -14,7 +14,6 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,7 +22,8 @@ import java.util.Calendar
 import java.util.Locale
 
 /**
- * Activity for setting water change times for pets and scheduling notifications.
+ * Activity that allows users to set and manage water change times for their pets.
+ * It supports scheduling notifications for reminders and storing water change times in Firestore.
  */
 class WaterTimesActivity : AppCompatActivity() {
 
@@ -34,7 +34,8 @@ class WaterTimesActivity : AppCompatActivity() {
     private val timestampsW = mutableListOf<String>()
 
     /**
-     * Called when the activity is created. Initializes the UI components and sets up event listeners.
+     * Called when the activity is created. This method initializes the UI components and sets up event listeners.
+     * It also loads existing water change times from Firestore if a pet ID is passed in the intent.
      *
      * @param savedInstanceState The saved instance state for the activity, if any.
      */
@@ -59,6 +60,7 @@ class WaterTimesActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Set time button functionality to store and schedule a water change reminder
         setTimeButtonW.setOnClickListener {
             // Get the selected time from the TimePicker
             val hour = timePickerW.hour // API 23 and above (for API 23+)
@@ -85,28 +87,30 @@ class WaterTimesActivity : AppCompatActivity() {
             /// Update the TextView to show the set timestamps
             updateTimestampsTextView()
 
-            // Save the feeding time to Firestore
+            // Save the water change time to Firestore
             if (petId != null) {
                 saveWaterChangeTimeToFirestore(petId, timeString)
             }
         }
 
+        // Clear time button functionality to delete all water change times from Firestore
         clearTimeButtonW.setOnClickListener {
-            // Call the function to delete all feeding times
             if (petId != null) {
                 deleteAllWaterTimesFromFirestore(petId)
             }
         }
 
-        // Load the existing feeding times from Firestore if the user is logged in
+        // Load the existing water times from Firestore if the user is logged in
         if (petId != null) {
             loadWaterTimesFromFirestore(petId)
         }
     }
+
     /**
-     * Schedules a notification to trigger at the specified time.
+     * Schedules a notification to trigger at the specified time for the water change reminder.
      *
-     * @param calendar The Calendar object representing the scheduled time.
+     * @param calendar The Calendar object representing the scheduled time for the reminder.
+     * @param reminderType The type of reminder (in this case, "Water").
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun scheduleNotification(calendar: Calendar, reminderType: String) {
@@ -134,6 +138,9 @@ class WaterTimesActivity : AppCompatActivity() {
 
     /**
      * Saves the selected water change time to Firestore under the current user's pet.
+     *
+     * @param petID The ID of the pet for which the time is being set.
+     * @param timeString The formatted time string for the water change reminder.
      */
     private fun saveWaterChangeTimeToFirestore(petID: String, timeString: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -153,6 +160,11 @@ class WaterTimesActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Loads the existing water change times from Firestore for a specified pet.
+     *
+     * @param petID The ID of the pet whose water change times are being retrieved.
+     */
     private fun loadWaterTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
@@ -202,7 +214,11 @@ class WaterTimesActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Deletes all water change times for a specified pet from Firestore.
+     *
+     * @param petID The ID of the pet for which all water change times should be deleted.
+     */
     private fun deleteAllWaterTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()

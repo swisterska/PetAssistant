@@ -35,14 +35,5 @@ class LogRegActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
-
-        // Set up the "Break" button to navigate back to the MainPageActivity when clicked
-        val breakbutton = findViewById<Button>(R.id.Break)
-        breakbutton.setOnClickListener {
-
-            val intent = Intent(this, MainPageActivity::class.java)
-            startActivity(intent)
-        }
-
-        }
     }
+}

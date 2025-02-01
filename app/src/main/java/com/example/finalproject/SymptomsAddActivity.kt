@@ -3,7 +3,6 @@ package com.example.finalproject
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.Button
@@ -20,6 +19,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Activity that allows users to add and manage symptoms for a pet.
+ * It also loads and displays existing symptoms from Firestore in a RecyclerView.
+ */
 class SymptomsAddActivity : AppCompatActivity() {
 
     private lateinit var symptomInput: EditText
@@ -32,6 +35,10 @@ class SymptomsAddActivity : AppCompatActivity() {
     private lateinit var userId: String
     private var petId: String? = null
 
+    /**
+     * Called when the activity is first created. Initializes UI elements,
+     * sets up RecyclerView, and listens for user actions.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +84,7 @@ class SymptomsAddActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Add symptom functionality
         addSymptomButton.setOnClickListener {
             if (petId != null) {
                 saveSymptomToFirestore(petId!!)
@@ -84,6 +92,12 @@ class SymptomsAddActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Loads symptoms from Firestore and updates the RecyclerView.
+     * This method listens for real-time updates to the symptoms collection.
+     *
+     * @param petId The pet ID used to fetch the symptoms from Firestore.
+     */
     private fun loadSymptoms(petId: String) {
         val dbRef = db.collection("users")
             .document(userId)
@@ -101,11 +115,13 @@ class SymptomsAddActivity : AppCompatActivity() {
             if (snapshot != null) {
                 val updatedSymptoms = mutableListOf<SymptomData>()
 
+                // Map Firestore documents to SymptomData objects
                 for (document in snapshot.documents) {
                     val symptom = document.toObject(SymptomData::class.java)
                     symptom?.let { updatedSymptoms.add(it) }
                 }
 
+                // Update the symptom list and notify the adapter
                 symptomList.clear()
                 symptomList.addAll(updatedSymptoms)
                 symptomAdapter.notifyDataSetChanged()
@@ -117,7 +133,12 @@ class SymptomsAddActivity : AppCompatActivity() {
     }
 
 
-
+    /**
+     * Saves a new symptom to Firestore under the current user's pet.
+     * The symptom includes the symptom text, description, and timestamp.
+     *
+     * @param petID The pet ID to associate the symptom with in Firestore.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveSymptomToFirestore(petID: String) {
         val symptomText = symptomInput.text.toString().trim()
@@ -129,6 +150,7 @@ class SymptomsAddActivity : AppCompatActivity() {
             return
         }
 
+        // Format timestamp
         val timeString = SimpleDateFormat(
             "yyyy-MM-dd HH:mm",
             Locale.getDefault()
@@ -148,13 +170,14 @@ class SymptomsAddActivity : AppCompatActivity() {
             timestamp = timeString
         )
 
+        // Save symptom to Firestore
         newSymptomRef.set(symptomData)
             .addOnSuccessListener {
                 Toast.makeText(this, "Symptom added successfully", Toast.LENGTH_SHORT).show()
                 symptomInput.text.clear()
                 symptomDescriptionInput.text.clear()
 
-                // No need to manually add the symptom since Firestore listener will handle it
+                // Firestore listener will handle updating the RecyclerView
             }
             .addOnFailureListener { e ->
                 Log.e("SymptomsAddActivity", "Error adding symptom", e)
@@ -162,6 +185,12 @@ class SymptomsAddActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Displays a dialog for editing an existing symptom. The user can modify the symptom's
+     * title and description.
+     *
+     * @param symptomData The SymptomData object containing the current symptom information.
+     */
     private fun showEditDialog(symptomData: SymptomData) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_symptom, null)
         val editSymptomInput = dialogView.findViewById<EditText>(R.id.editSymptomInput)
@@ -210,6 +239,4 @@ class SymptomsAddActivity : AppCompatActivity() {
 
         alertDialog.show()
     }
-
-
 }

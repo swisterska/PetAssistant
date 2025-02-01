@@ -11,30 +11,36 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.util.copy
-import com.example.finalproject.firebase.User
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-
+/**
+ * Activity that allows users to choose a pet from their list of registered pets.
+ * Users can add, edit, and delete pet profiles, as well as navigate to the main page with the selected pet.
+ */
 class ChooseYourPetActivity : AppCompatActivity() {
 
+    // UI components
     private lateinit var petsRecyclerView: RecyclerView
     private lateinit var petAdapter: PetAdapter
     private lateinit var petsList: MutableList<Pet>
     private lateinit var addNewPetButton: ImageButton
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the RecyclerView, sets up the settings menu button, loads pets from Firestore,
+     * and handles navigation to other activities when a pet is selected or when the "Add New Pet" button is clicked.
+     *
+     * @param savedInstanceState The saved instance state from a previous state of this activity, if available.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("ChooseYourPetActivity", "onCreate started")
@@ -56,6 +62,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Set up settings button
         val settingsButton = findViewById<ImageButton>(R.id.settings)
         settingsButton.setOnClickListener { view ->
             showPopupMenu(view)
@@ -76,6 +83,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Loads the list of pets from Firestore for the current user.
+     */
     private fun loadPets() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         Log.d("ChooseYourPetActivity", "Loading pets for user: $userId")
@@ -100,6 +110,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Shows a dialog for editing pet details.
+     */
     fun showEditPetDialog(pet: Pet) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_pet, null)
         val dialog = AlertDialog.Builder(this)
@@ -182,6 +195,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    /**
+     * Updates pet details in Firestore.
+     */
     private fun updatePetInFirestore(pet: Pet) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -197,6 +213,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Deletes a pet from Firestore.
+     */
     private fun deletePetFromFirestore(petId: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -212,6 +231,9 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Displays a date picker dialog for selecting pet's date of birth.
+     */
     fun ChooseYourPetActivity.showDatePickerDialog(editText: EditText) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -226,6 +248,11 @@ class ChooseYourPetActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
+    /**
+     * Displays a popup menu with user settings options, such as editing the profile or logging out.
+     *
+     * @param view The view that triggers the popup menu.
+     */
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
         popup.menuInflater.inflate(R.menu.settings_menu, popup.menu)
@@ -250,7 +277,10 @@ class ChooseYourPetActivity : AppCompatActivity() {
     }
 
 
-
+    /**
+     * Displays a dialog for editing the user's profile information.
+     * The user can update their name, which is retrieved from and saved to Firestore.
+     */
     private fun showEditProfileDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
         val dialog = AlertDialog.Builder(this)
@@ -294,7 +324,12 @@ class ChooseYourPetActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // Function to update Firestore
+    /**
+     * Updates the user's name in Firestore.
+     *
+     * @param userId The unique ID of the user in Firestore.
+     * @param updatedName The new name to be saved.
+     */
     private fun updateUserNameInFirestore(userId: String, updatedName: String) {
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(userId)
@@ -309,8 +344,10 @@ class ChooseYourPetActivity : AppCompatActivity() {
     }
 
 
-
-
+    /**
+     * Deletes the user's account from Firestore.
+     * This action is irreversible and removes all user data from Firestore.
+     */
     private fun deleteUserFromFirestore() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()

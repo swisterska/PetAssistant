@@ -14,7 +14,6 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -60,7 +59,7 @@ class FoodTimesActivity : AppCompatActivity() {
 
         setTimeButton.setOnClickListener {
             // Get the selected time from the TimePicker
-            val hour = timePicker.hour // API 23 and above (for API 23+)
+            val hour = timePicker.hour
             val minute = timePicker.minute
 
             // Store the selected time as a timestamp
@@ -134,15 +133,18 @@ class FoodTimesActivity : AppCompatActivity() {
     }
 
     /**
-    * Saves the selected feeding time to Firestore under the current user's pet.
-    */
+     * Saves the selected feeding time to Firestore under the current user's pet.
+     *
+     * @param petID The unique ID of the pet.
+     * @param timeString The feeding time in "HH:mm" format to be stored in Firestore.
+     */
     private fun saveFeedingTimeToFirestore(petID: String, timeString: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
             .collection("pets")
-            .document(petID)  // Use the petID passed to this function
+            .document(petID)
 
         // Update the feeding time list in Firestore (store as String)
         dbRef.update("feedingTime", FieldValue.arrayUnion(timeString))
@@ -154,6 +156,11 @@ class FoodTimesActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Loads the feeding times from Firestore for a specific pet.
+     *
+     * @param petID The unique ID of the pet whose feeding times are being retrieved.
+     */
 
     private fun loadFeedingTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -161,7 +168,7 @@ class FoodTimesActivity : AppCompatActivity() {
             .collection("users")
             .document(userId)
             .collection("pets")
-            .document(petID)  // Use the petID passed to the function
+            .document(petID)
 
         dbRef.get()
             .addOnSuccessListener { document ->
@@ -193,6 +200,7 @@ class FoodTimesActivity : AppCompatActivity() {
 
     /**
      * Updates the TextView with the list of scheduled feeding times.
+     * If no feeding times exist, displays a default message.
      */
     private fun updateTimestampsTextView() {
         // Format the timestamps list as a string
@@ -206,14 +214,19 @@ class FoodTimesActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Deletes all feeding times from Firestore for a specific pet.
+     * Clears the local list and updates the UI.
+     *
+     * @param petID The unique ID of the pet whose feeding times will be deleted.
+     */
     private fun deleteAllFeedingTimesFromFirestore(petID: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
             .collection("pets")
-            .document(petID)  // Use the petID passed to this function
+            .document(petID)
 
         // Set the feeding time list to an empty list in Firestore
         dbRef.update("feedingTime", FieldValue.arrayRemove(*timestamps.toTypedArray()))
@@ -233,6 +246,4 @@ class FoodTimesActivity : AppCompatActivity() {
                 Log.e("Firestore", "Error deleting feeding times for pet $petID", e)
             }
     }
-
-
 }

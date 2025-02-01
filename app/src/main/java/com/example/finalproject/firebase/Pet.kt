@@ -104,41 +104,6 @@ data class Pet(
         ownerId = ""
     )
 
-
-
-
-
-    /**
-     * Adds a feeding time to the pet's feeding schedule.
-     *
-     * @param timeMillis The feeding time in milliseconds (e.g., System.currentTimeMillis()).
-     */
-//    fun addFeedingTime(timeMillis: Long) {
-//        val timestamp =
-//            com.google.firebase.Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
-//        feedingTime.add(timestamp)
-//    }
-
-    /**
-     * Adds a watering time to the pet's watering schedule.
-     *
-     * @param timeMillis The watering time in milliseconds.
-     */
-//    fun addWaterTime(timeMillis: Long) {
-//        val timestamp = Timestamp(timeMillis / 1000, 0) // Convert milliseconds to seconds
-//        waterTime.add(timestamp)
-//    }
-
-    /**
-     * Adds a health note and updates the health history.
-     *
-     * @param note The health note to add.
-     */
-//    fun addHealthNote(note: String) {
-//        healthNotes += "$note\n"
-//        healthHistory.add(note)
-//    }
-
     companion object {
         /**
          * Converts a map of Firestore document data into a Pet object.
