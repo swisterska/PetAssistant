@@ -134,8 +134,23 @@ class EmergencyActivity : AppCompatActivity() {
                 if (!isStopped) {
                     countdownTimerText.text = "0" // Display 0 at the end
                     sendSmsToVet()
+
+                    // Change the stop button into "Show Nearest Vet"
+                    stopButton.text = "Show Nearest Vet"
+
+                    val petId = intent.getStringExtra("petId")
+
+                    // Update click listener to navigate to NearestVetForEmergency
+                    stopButton.setOnClickListener {
+                        val intent = Intent(this@EmergencyActivity, NearestVetForEmergency::class.java)
+                        intent.putExtra("petId", petId)
+                        startActivity(intent)
+
+                        startActivity(intent)
+                    }
                 }
             }
+
         }
         countdownTimer.start()
     }

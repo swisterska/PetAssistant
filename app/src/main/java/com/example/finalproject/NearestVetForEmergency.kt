@@ -26,10 +26,10 @@ import org.json.JSONException
 import org.json.JSONObject
 
 /**
- * This activity displays a Google Map with the user's current location and nearby veterinary clinics.
- * The user can also see a list of nearby veterinarians in a ListView.
+ * This activity displays a Google Map with the user's current location and the nearest veterinary clinic.
+ * The user can also see a list of the nearest veterinary clinic.
  */
-class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
+class NearestVetForEmergency : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityVetsNearby2Binding
@@ -105,8 +105,8 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
 
                 Log.d("VetsNearbyActivity", "User location: $currentLatLng")
-                // Call function to find nearby veterinary clinics
-                findNearbyPlaces("veterinary_care", 50000)
+                // Call function to find the nearest veterinary clinic
+                findNearestVet("veterinary_care", 50000)
             } else {
                 Log.e("VetsNearbyActivity", "Could not retrieve location.")
             }
@@ -116,13 +116,13 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Finds nearby places of a given type (e.g., "veterinary_care") within a specified radius.
+     * Finds the nearest veterinary clinic of a given type (e.g., "veterinary_care") within a specified radius.
      * The method makes a request to the Google Places API to find the places.
      *
      * @param type The type of places to search for (e.g., "veterinary_care").
      * @param radius The radius (in meters) to search around the user's location.
      */
-    private fun findNearbyPlaces(type: String, radius: Int) {
+    private fun findNearestVet(type: String, radius: Int) {
         val location = lastKnownLocation
         if (location == null) {
             Log.e("VetsNearbyActivity", "User location is null, cannot find places.")
@@ -150,44 +150,59 @@ class VetsNearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                         Log.w("VetsNearbyActivity", "No nearby places found.")
                     }
 
-                    val vetList = mutableListOf<Vet>()
+                    val vetList = mutableListOf<VetEmergency>()
 
-                    // Parse each place and add it to the map and list
+                    // Parse each place and add it to the list
                     for (i in 0 until results.length()) {
                         val place = results.getJSONObject(i)
-                        val location = place.getJSONObject("geometry").getJSONObject("location")
-                        val lat = location.getDouble("lat")
-                        val lng = location.getDouble("lng")
+                        val placeLocation = place.getJSONObject("geometry").getJSONObject("location")
+                        val lat = placeLocation.getDouble("lat")
+                        val lng = placeLocation.getDouble("lng")
                         val placeName = place.getString("name")
 
-                        // Add the place as a marker on the map
-                        mMap.addMarker(
-                            MarkerOptions()
-                                .position(LatLng(lat, lng))
-                                .title(placeName)
-                        )
-
                         // Add the vet information to the list
-                        vetList.add(Vet(placeName, lat, lng))
+                        vetList.add(VetEmergency(placeName, lat, lng))
                     }
 
-                    // Pass the user's location to the VetAdapter to calculate distances
-                    val adapter = VetAdapter(this, vetList, location)
-                    val vetListView: ListView = findViewById(R.id.vet_list_view)
-                    vetListView.adapter = adapter
+                    // Sort the list of vets based on the distance from the user's current location
+                    vetList.sortBy { vet ->
+                        val vetLocation = Location("vet")
+                        vetLocation.latitude = vet.latitude
+                        vetLocation.longitude = vet.longitude
+                        location.distanceTo(vetLocation)
+                    }
+
+                    // Get the nearest vet (only the first one after sorting)
+                    val nearestVet = vetList.firstOrNull()
+
+                    if (nearestVet != null) {
+                        // Add the nearest vet as a marker on the map
+                        mMap.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(nearestVet.latitude, nearestVet.longitude))
+                                .title(nearestVet.name)
+                        )
+
+                        // Zoom to the nearest vet location
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nearestVet.latitude, nearestVet.longitude), 14f))
+
+                        // Set up the ListView with only the nearest vet
+                        val vetListView: ListView = findViewById(R.id.vet_list_view)
+                        val adapter = EmergencyVetSearchAdapter(this, listOf(nearestVet), location)
+                        vetListView.adapter = adapter
+                    }
 
                 } catch (e: JSONException) {
-                    Log.e("VetsNearbyActivity", "JSON parsing error: ${e.message}")
+                    Log.e("NearestVetForEmergency", "JSON parsing error: ${e.message}")
                 }
             },
             Response.ErrorListener { error ->
-                Log.e("VetsNearbyActivity", "Error fetching places: ${error.message}")
+                Log.e("NearestVetForEmergency", "Error fetching places: ${error.message}")
             }) {}
 
         // Add the request to the Volley request queue
         Volley.newRequestQueue(this).add(request)
     }
-
 
 
     /**
