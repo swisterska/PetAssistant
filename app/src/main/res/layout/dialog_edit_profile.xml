@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/profileeditback"
     android:padding="20dp">
@@ -29,6 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="16dp"/>
 
+    <EditText
+        android:id="@+id/editProfileEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
 
     <Button
         android:id="@+id/saveProfileChangesButton"
@@ -45,4 +54,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Cancel" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <ImageButton
+        android:id="@+id/deleteAccountButton"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:src="@drawable/deleteaccount"
+        android:background="#00FFFFFF"/>
 </LinearLayout>

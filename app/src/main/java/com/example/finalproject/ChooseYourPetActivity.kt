@@ -9,6 +9,7 @@ import com.example.finalproject.firebase.Species
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.widget.*
 import android.view.View
@@ -17,9 +18,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.EmailAuthProvider
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.example.finalproject.firebase.FirestoreClass
+// For launching coroutines
+
+
+
 
 
 /**
@@ -175,20 +186,28 @@ class ChooseYourPetActivity : AppCompatActivity() {
         editDob.setOnClickListener { showDatePickerDialog(editDob) }
 
         saveChangesButton.setOnClickListener {
+            val updatedName = editPetName.text.toString().trim()
+
+            if (updatedName.isEmpty()) {
+                Toast.makeText(this, "Pet name cannot be empty!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val updatedPet = pet.copy(
-                name = editPetName.text.toString().trim(),
+                name = updatedName,
                 breed = editBreed.text.toString().trim(),
                 weight = editWeight.text.toString().toDoubleOrNull() ?: pet.weight,
                 allergies = editAllergies.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() },
                 diseases = editDiseases.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() },
                 dob = editDob.text.toString().trim(),
-                gender = Gender.valueOf(genderSpinner.selectedItem.toString().uppercase()),  // Corrected reference
-                species = Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())  // Corrected reference
+                gender = Gender.valueOf(genderSpinner.selectedItem.toString().uppercase()),
+                species = Species.valueOf(speciesSpinner.selectedItem.toString().uppercase())
             )
 
             updatePetInFirestore(updatedPet)
             dialog.dismiss()
         }
+
 
 
         deletePetButton.setOnClickListener {
@@ -298,6 +317,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
         val editName = dialogView.findViewById<EditText>(R.id.editProfileName)
         val saveButton = dialogView.findViewById<Button>(R.id.saveProfileChangesButton)
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelProfileChangesButton)
+        val deleteAccountButton = dialogView.findViewById<ImageButton>(R.id.deleteAccountButton) // Add delete button
 
         // Get current user
         val user = FirebaseAuth.getInstance().currentUser
@@ -312,62 +332,66 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
         }
 
-
-        // Save changes
         saveButton.setOnClickListener {
             val updatedName = editName.text.toString().trim()
 
-            if (updatedName.isNotEmpty()) {
-                updateUserNameInFirestore(userId, updatedName)
-                dialog.dismiss()
-            } else {
-                Toast.makeText(this, "Name cannot be empty!", Toast.LENGTH_SHORT).show()
+            if (updatedName.isEmpty()) {
+                Toast.makeText(this, "User name cannot be empty!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            updateUserName(userId, updatedName)
+            Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        deleteAccountButton.setOnClickListener {
+            confirmAccountDeletion()
         }
 
         cancelButton.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        dialog.window?.setLayout(800, 1200)
+
     }
 
-    /**
-     * Updates the user's name in Firestore.
-     *
-     * @param userId The unique ID of the user in Firestore.
-     * @param updatedName The new name to be saved.
-     */
-    private fun updateUserNameInFirestore(userId: String, updatedName: String) {
-        val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(userId)
-
-        userRef.update("name", updatedName)
+    private fun updateUserName(userId: String, newName: String) {
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+        userRef.update("name", newName)
             .addOnSuccessListener {
-                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+                Log.d("Firestore", "User name updated successfully")
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-
-    /**
-     * Deletes the user's account from Firestore.
-     * This action is irreversible and removes all user data from Firestore.
-     */
-    private fun deleteUserFromFirestore() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users").document(userId)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(this, "User removed.", Toast.LENGTH_SHORT).show()
-
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to remove user.", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error updating name", e)
             }
     }
 
+    private fun confirmAccountDeletion() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirm Deletion")
+            .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteUserAccount()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
+    private fun deleteUserAccount() {
+        val user = FirebaseAuth.getInstance().currentUser
+
+        user?.delete()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "Account deleted successfully!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this, "Failed to delete account: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 } 
