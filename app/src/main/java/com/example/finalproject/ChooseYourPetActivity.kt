@@ -538,16 +538,61 @@ class ChooseYourPetActivity : AppCompatActivity() {
 
     private fun deleteUserAccount() {
         val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid ?: return
 
-        user?.delete()?.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(this, "Account deleted successfully!", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to delete account: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+        // Get a reference to the Firestore database
+        val db = FirebaseFirestore.getInstance()
+
+        // Delete user's data from Firestore
+        val userRef = db.collection("users").document(userId)
+
+        // Delete the pets collection data
+        val petsRef = db.collection("users").document(userId).collection("pets")
+        petsRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = db.batch()
+
+                // Delete all pets for the user
+                for (document in querySnapshot) {
+                    batch.delete(document.reference)
+                }
+
+                // After deleting pets, delete the user's own document
+                batch.delete(userRef)
+
+                // Commit the batch operation to Firestore
+                batch.commit()
+                    .addOnSuccessListener {
+                        // After Firestore data is deleted, delete the Firebase Authentication account
+                        deleteFirebaseUser(user)
+                    }
+                    .addOnFailureListener { e ->
+                        // Handle failure in batch operation
+                        Toast.makeText(this, "Failed to delete user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
-        }
+            .addOnFailureListener { e ->
+                // Handle failure when retrieving pets data
+                Toast.makeText(this, "Failed to retrieve user data: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
+
+    /**
+     * Delete the user from Firebase Authentication after their data is removed from Firestore.
+     */
+    private fun deleteFirebaseUser(user: FirebaseUser) {
+        user.delete()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Account deleted successfully!", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Failed to delete account: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+
 }
