@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.finalproject.firebase.FirestoreClass
+import com.google.firebase.auth.FirebaseUser
+
 // For launching coroutines
 
 
@@ -315,32 +317,50 @@ class ChooseYourPetActivity : AppCompatActivity() {
 
         // Find views
         val editName = dialogView.findViewById<EditText>(R.id.editProfileName)
+        val editEmail = dialogView.findViewById<EditText>(R.id.editProfileEmail)
         val saveButton = dialogView.findViewById<Button>(R.id.saveProfileChangesButton)
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelProfileChangesButton)
-        val deleteAccountButton = dialogView.findViewById<ImageButton>(R.id.deleteAccountButton) // Add delete button
+        val deleteAccountButton = dialogView.findViewById<ImageButton>(R.id.deleteAccountButton)
 
         // Get current user
         val user = FirebaseAuth.getInstance().currentUser
         val db = FirebaseFirestore.getInstance()
         val userId = user?.uid ?: return
 
+        // Pre-fill email with current user email
+        editEmail.setText(user?.email ?: "")
+
         // Load existing name from Firestore
         val userRef = db.collection("users").document(userId)
         userRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                editName.setText(document.getString("name") ?: "") // Set current name
+                // Fetch the name field from Firestore (as you mentioned it's called "name")
+                val currentName = document.getString("name") ?: ""
+                editName.setText(currentName) // Set the name in the EditText
+            } else {
+                Toast.makeText(this, "User profile not found", Toast.LENGTH_SHORT).show()
             }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to load profile info", Toast.LENGTH_SHORT).show()
         }
 
         saveButton.setOnClickListener {
             val updatedName = editName.text.toString().trim()
+            val updatedEmail = editEmail.text.toString().trim()
 
             if (updatedName.isEmpty()) {
-                Toast.makeText(this, "User name cannot be empty!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Name cannot be empty!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Update name in Firestore
             updateUserName(userId, updatedName)
+
+            // Update email if changed
+            if (updatedEmail.isNotEmpty() && updatedEmail != user?.email) {
+                updateEmail(user, updatedEmail)
+            }
+
             Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
@@ -352,9 +372,137 @@ class ChooseYourPetActivity : AppCompatActivity() {
         cancelButton.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
-        dialog.window?.setLayout(800, 1200)
-
     }
+
+
+    /**
+     * Updates the user's email address after re-authenticating with their current password.
+     * If successful, sends a verification email to the new email address.
+     * Once the user verifies the new email, the email address is updated and the user is logged out.
+     *
+     * @param user The current authenticated user whose email will be updated.
+     * @param newEmail The new email address to be set for the user.
+     */
+
+    private fun updateEmail(user: FirebaseUser, newEmail: String) {
+        val passwordInput = EditText(this)
+        passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+        AlertDialog.Builder(this)
+            .setTitle("Re-authentication Required")
+            .setMessage("Enter your current password to update your email:")
+            .setView(passwordInput)
+            .setPositiveButton("Confirm") { _, _ ->
+                val password = passwordInput.text.toString().trim()
+
+                if (password.isEmpty()) {
+                    Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val credential = EmailAuthProvider.getCredential(user.email!!, password)
+
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+
+                        user.verifyBeforeUpdateEmail(newEmail)
+                            .addOnSuccessListener {
+
+                                Toast.makeText(this, "A verification email has been sent to $newEmail. Please verify to complete the update.", Toast.LENGTH_LONG).show()
+
+
+                                FirebaseAuth.getInstance().signOut()
+                                val intent = Intent(this, LogRegActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Failed to send verification email: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Re-authentication failed. Check your password!", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+
+
+
+    /**
+     * Displays a dialog to prompt the user for their password before updating their email.
+     *
+     * @param newEmail The new email address the user wants to update to.
+     * @param parentDialog The dialog from which this function is triggered (to be dismissed after update).
+     */
+
+    private fun showReauthenticationDialog(newEmail: String, parentDialog: AlertDialog) {
+        val reauthView = layoutInflater.inflate(R.layout.dialog_reauthenticate, null)
+        val reauthDialog = AlertDialog.Builder(this)
+            .setView(reauthView)
+            .create()
+
+        val passwordInput = reauthView.findViewById<EditText>(R.id.passwordInput)
+        val confirmButton = reauthView.findViewById<Button>(R.id.confirmButton)
+        val cancelButton = reauthView.findViewById<Button>(R.id.cancelButton)
+
+        confirmButton.setOnClickListener {
+            val password = passwordInput.text.toString().trim()
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Enter your password!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            reauthenticateAndUpdateEmail(newEmail, password, parentDialog, reauthDialog)
+        }
+
+        cancelButton.setOnClickListener { reauthDialog.dismiss() }
+
+        reauthDialog.show()
+    }
+
+    /**
+     * Re-authenticates the user using their password and updates their email address.
+     *
+     * @param newEmail The new email to be set for the user.
+     * @param password The user's current password for authentication.
+     * @param parentDialog The parent dialog (profile edit dialog) to be dismissed upon successful update.
+     * @param reauthDialog The reauthentication dialog to be dismissed after completing authentication.
+     */
+
+    private fun reauthenticateAndUpdateEmail(newEmail: String, password: String, parentDialog: AlertDialog, reauthDialog: AlertDialog) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            Toast.makeText(this, "User not authenticated!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val credential = EmailAuthProvider.getCredential(user.email!!, password)
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                user.updateEmail(newEmail)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Email updated successfully!", Toast.LENGTH_SHORT).show()
+                        parentDialog.dismiss()
+                        reauthDialog.dismiss()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to update email: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Reauthentication failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    /**
+     * Updates the user's name in Firestore.
+     *
+     * @param userId The ID of the user.
+     * @param newName The updated name of the user.
+     */
 
     private fun updateUserName(userId: String, newName: String) {
         val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
@@ -366,6 +514,10 @@ class ChooseYourPetActivity : AppCompatActivity() {
                 Log.e("Firestore", "Error updating name", e)
             }
     }
+
+    /**
+     * Displays a confirmation dialog before account deletion.
+     */
 
     private fun confirmAccountDeletion() {
         val builder = AlertDialog.Builder(this)
@@ -379,6 +531,10 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
             .show()
     }
+
+    /**
+     * Deletes the user's Firebase account.
+     */
 
     private fun deleteUserAccount() {
         val user = FirebaseAuth.getInstance().currentUser
@@ -394,4 +550,4 @@ class ChooseYourPetActivity : AppCompatActivity() {
             }
         }
     }
-} 
+}
