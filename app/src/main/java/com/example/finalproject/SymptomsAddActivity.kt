@@ -193,26 +193,36 @@ class SymptomsAddActivity : AppCompatActivity() {
      */
     private fun showEditDialog(symptomData: SymptomData) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_symptom, null)
+
         val editSymptomInput = dialogView.findViewById<EditText>(R.id.editSymptomInput)
         val editDescriptionInput = dialogView.findViewById<EditText>(R.id.editDescriptionInput)
+        val btnSave = dialogView.findViewById<Button>(R.id.btnSave)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
 
         editSymptomInput.setText(symptomData.symptom)
         editDescriptionInput.setText(symptomData.description)
 
+        // Enable scrolling in EditTexts
+        editSymptomInput.setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
+        editDescriptionInput.setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
         val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Edit Symptom")
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
-                val updatedSymptom = editSymptomInput.text.toString().trim()
-                val updatedDescription = editDescriptionInput.text.toString().trim()
+            .create()
 
-                if (updatedSymptom.isNotEmpty()) {
-                    db.collection("users").document(userId).collection("pets")
-                        .document(petId!!).collection("symptoms")
-                        .document(symptomData.id!!)
-                        .update(mapOf("symptom" to updatedSymptom, "description" to updatedDescription))
-                }
+        // Handle Save button click
+        btnSave.setOnClickListener {
+            val updatedSymptom = editSymptomInput.text.toString().trim()
+            val updatedDescription = editDescriptionInput.text.toString().trim()
 
+            if (updatedSymptom.isNotEmpty()) {
                 val symptomRef = db.collection("users")
                     .document(userId)
                     .collection("pets")
@@ -221,11 +231,7 @@ class SymptomsAddActivity : AppCompatActivity() {
                     .document(symptomData.id!!)
 
                 val updateData = mutableMapOf<String, Any>("symptom" to updatedSymptom)
-                if (updatedDescription.isNotEmpty()) {
-                    updateData["description"] = updatedDescription
-                } else {
-                    updateData["description"] = ""
-                }
+                updateData["description"] = updatedDescription.ifEmpty { "" }
 
                 symptomRef.update(updateData)
                     .addOnSuccessListener {
@@ -234,9 +240,19 @@ class SymptomsAddActivity : AppCompatActivity() {
                         Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show()
                     }
             }
-            .setNegativeButton("Cancel", null)
-            .create()
+            alertDialog.dismiss() // Close the dialog
+        }
+
+        // Handle Cancel button click
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
 
         alertDialog.show()
+
+        // Make popup smaller
+        alertDialog.window?.setLayout(800, 800)
     }
+
+
 }
