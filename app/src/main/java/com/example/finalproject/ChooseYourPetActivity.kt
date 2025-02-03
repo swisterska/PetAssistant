@@ -304,7 +304,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
             .create()
 
         // Find views
-        val editName = dialogView.findViewById<EditText>(R.id.editProfileName)
+        val editUsername = dialogView.findViewById<EditText>(R.id.editProfileName) // Using editProfileName but storing username
         val editEmail = dialogView.findViewById<EditText>(R.id.editProfileEmail)
         val saveButton = dialogView.findViewById<Button>(R.id.saveProfileChangesButton)
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelProfileChangesButton)
@@ -316,16 +316,14 @@ class ChooseYourPetActivity : AppCompatActivity() {
         val userId = user?.uid ?: return
 
         // Pre-fill email with current user email
-
         editEmail.setText(user?.email ?: "")
 
-        // Load existing name from Firestore
+        // Load existing username from Firestore (replacing name with username)
         val userRef = db.collection("users").document(userId)
         userRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                // Fetch the name field from Firestore (as you mentioned it's called "name")
-                val currentName = document.getString("name") ?: ""
-                editName.setText(currentName) // Set the name in the EditText
+                val currentUsername = document.getString("username") ?: "" // Fetching username correctly
+                editUsername.setText(currentUsername) // Set username in EditText
             } else {
                 Toast.makeText(this, "User profile not found", Toast.LENGTH_SHORT).show()
             }
@@ -334,16 +332,16 @@ class ChooseYourPetActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-            val updatedName = editName.text.toString().trim()
+            val updatedUsername = editUsername.text.toString().trim()
             val updatedEmail = editEmail.text.toString().trim()
 
-            if (updatedName.isEmpty()) {
-                Toast.makeText(this, "Name cannot be empty!", Toast.LENGTH_SHORT).show()
+            if (updatedUsername.isEmpty()) {
+                Toast.makeText(this, "Username cannot be empty!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Update name in Firestore
-            updateUserName(userId, updatedName)
+            // Update username in Firestore
+            updateUsername(userId, updatedUsername)
 
             // Update email if changed
             if (updatedEmail.isNotEmpty() && updatedEmail != user?.email) {
@@ -362,6 +360,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
 
 
     /**
@@ -493,16 +492,17 @@ class ChooseYourPetActivity : AppCompatActivity() {
      * @param newName The updated name of the user.
      */
 
-    private fun updateUserName(userId: String, newName: String) {
+    private fun updateUsername(userId: String, newUsername: String) {
         val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
-        userRef.update("name", newName)
+        userRef.update("username", newUsername) // Using "username" instead of "name"
             .addOnSuccessListener {
-                Log.d("Firestore", "User name updated successfully")
+                Log.d("Firestore", "Username updated successfully")
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error updating name", e)
+                Log.e("Firestore", "Error updating username", e)
             }
     }
+
 
     /**
      * Displays a confirmation dialog before account deletion.
