@@ -359,6 +359,8 @@ class ChooseYourPetActivity : AppCompatActivity() {
         cancelButton.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        dialog.window?.setLayout(800, 1500)
+
     }
 
 
@@ -509,38 +511,49 @@ class ChooseYourPetActivity : AppCompatActivity() {
      */
 
     private fun confirmAccountDeletion() {
-        val passwordInput = EditText(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_delete_account, null)
+        val passwordInput = dialogView.findViewById<EditText>(R.id.passwordInput)
         passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
 
-        AlertDialog.Builder(this)
-            .setTitle("Re-authentication Required")
-            .setMessage("This action is permanent and cannot be undone. All your data, including your pets, will be lost forever.\\n\\nTo proceed, please enter your password:")
-            .setView(passwordInput)
-            .setPositiveButton("Confirm") { _, _ ->
-                val password = passwordInput.text.toString().trim()
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
 
-                if (password.isEmpty()) {
-                    Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
+        // Apply the custom background
+        dialog.window?.setBackgroundDrawableResource(R.drawable.sad)
 
-                val user = FirebaseAuth.getInstance().currentUser
-                if (user != null && user.email != null) {
-                    val credential = EmailAuthProvider.getCredential(user.email!!, password)
+        dialogView.findViewById<Button>(R.id.confirmButton).setOnClickListener {
+            val password = passwordInput.text.toString().trim()
 
-                    // Re-authenticate user
-                    user.reauthenticate(credential)
-                        .addOnSuccessListener {
-                            deleteUserAccount() // Proceed with deletion after successful authentication
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(this, "Re-authentication failed. Check your password!", Toast.LENGTH_SHORT).show()
-                        }
-                }
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null && user.email != null) {
+                val credential = EmailAuthProvider.getCredential(user.email!!, password)
+
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+                        deleteUserAccount() // Proceed with deletion
+                        dialog.dismiss()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Incorrect password. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }
+
+        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(800, 1500)
+
     }
+
 
 
     /**
