@@ -509,17 +509,39 @@ class ChooseYourPetActivity : AppCompatActivity() {
      */
 
     private fun confirmAccountDeletion() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Confirm Deletion")
-            .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                deleteUserAccount()
+        val passwordInput = EditText(this)
+        passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+        AlertDialog.Builder(this)
+            .setTitle("Re-authentication Required")
+            .setMessage("This action is permanent and cannot be undone. All your data, including your pets, will be lost forever.\\n\\nTo proceed, please enter your password:")
+            .setView(passwordInput)
+            .setPositiveButton("Confirm") { _, _ ->
+                val password = passwordInput.text.toString().trim()
+
+                if (password.isEmpty()) {
+                    Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user != null && user.email != null) {
+                    val credential = EmailAuthProvider.getCredential(user.email!!, password)
+
+                    // Re-authenticate user
+                    user.reauthenticate(credential)
+                        .addOnSuccessListener {
+                            deleteUserAccount() // Proceed with deletion after successful authentication
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Re-authentication failed. Check your password!", Toast.LENGTH_SHORT).show()
+                        }
+                }
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
+
 
     /**
      * Deletes the user's Firebase account.
