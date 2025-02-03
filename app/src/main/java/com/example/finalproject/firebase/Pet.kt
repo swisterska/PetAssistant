@@ -84,8 +84,7 @@ data class Pet(
     val ownerId: String = ""
 )
 {
-    // No-argument constructor
-    constructor() : this(
+    constructor() : this( //we don't need then to give all values
         iconUri = null,
         id = "",
         name = "",
@@ -116,7 +115,7 @@ data class Pet(
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Example format: 2023-01-01
 
 
-            return Pet(
+            return Pet( //create a Pet object from a map of data
                 id = data["id"] as? String ?: "",
                 name = data["name"] as? String ?: "",
                 species = (data["species"] as? String)?.let {

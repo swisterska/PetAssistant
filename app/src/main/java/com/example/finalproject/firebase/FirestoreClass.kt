@@ -11,7 +11,7 @@ import android.util.Log
 class FirestoreClass {
 
     // Instance of Firebase Firestore
-    private val mFireStore = FirebaseFirestore.getInstance()
+    private val mFireStore = FirebaseFirestore.getInstance() // allows you to interact with the Firestore database
 
     /**
      * Registers a new user or updates an existing user's data in Firestore.
@@ -20,9 +20,9 @@ class FirestoreClass {
      * @throws Exception If there is an error while saving user data.
      */
 
-    suspend fun registerOrUpdateUser(user: User) {
+    suspend fun registerOrUpdateUser(user: User) { //suspend function, means it is asynchronous and can be used with coroutines
         try {
-            mFireStore.collection("users").document(user.id).set(user).await()
+            mFireStore.collection("users").document(user.id).set(user).await() //saves or updates the user's data in Firestore
             Log.d("FirestoreClass", "User successfully registered/updated.")
         } catch (e: Exception) {
             Log.e("FirestoreClass", "Error saving user data: ${e.message}", e)

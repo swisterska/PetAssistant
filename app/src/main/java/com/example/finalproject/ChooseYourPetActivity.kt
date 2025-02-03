@@ -22,17 +22,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.example.finalproject.firebase.FirestoreClass
 import com.google.firebase.auth.FirebaseUser
-
-// For launching coroutines
-
-
-
 
 
 /**
@@ -41,7 +31,7 @@ import com.google.firebase.auth.FirebaseUser
  */
 class ChooseYourPetActivity : AppCompatActivity() {
 
-    // UI components
+    // UI components, variables will be initialized later (in the onCreate() method)
     private lateinit var petsRecyclerView: RecyclerView
     private lateinit var petAdapter: PetAdapter
     private lateinit var petsList: MutableList<Pet>
@@ -75,7 +65,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Set up settings button
+        // Settings button
         val settingsButton = findViewById<ImageButton>(R.id.settings)
         settingsButton.setOnClickListener { view ->
             showPopupMenu(view)
@@ -84,10 +74,10 @@ class ChooseYourPetActivity : AppCompatActivity() {
         petsRecyclerView.adapter = petAdapter
         Log.d("ChooseYourPetActivity", "RecyclerView and adapter initialized")
 
-        // Load pets from Firestore
+        // Loads pets from Firestore
         loadPets()
 
-        // Set up the "Add New Pet" button
+        // "Add New Pet" button
         addNewPetButton = findViewById(R.id.addNewPetButton)
         addNewPetButton.setOnClickListener {
             Log.d("ChooseYourPetActivity", "Add New Pet button clicked")
@@ -100,15 +90,15 @@ class ChooseYourPetActivity : AppCompatActivity() {
      * Loads the list of pets from Firestore for the current user.
      */
     private fun loadPets() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return //retrieves the currently authenticated user's unique ID
         Log.d("ChooseYourPetActivity", "Loading pets for user: $userId")
 
         val db = FirebaseFirestore.getInstance()
         val petsCollectionRef = db.collection("users").document(userId).collection("pets")
 
-        petsCollectionRef.get()
+        petsCollectionRef.get() //fetches the data from the pets subcollection of the user
             .addOnSuccessListener { querySnapshot ->
-                petsList.clear()
+                petsList.clear() //clear so we don't double
                 for (document in querySnapshot) {
                     val pet = document.toObject(Pet::class.java)
                     pet.id = document.id
@@ -152,7 +142,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
         speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         speciesSpinner.adapter = speciesAdapter
 
-        // Convert pet's Gender and Species to match the Spinner values
+        // Convert pet's Gender and Species
         val genderString = pet.gender.name.replace("_", " ").lowercase(Locale.ROOT).capitalize(Locale.ROOT)
         val speciesString = pet.species.name.replace("_", " ").lowercase(Locale.ROOT).capitalize(Locale.ROOT)
 
@@ -210,8 +200,6 @@ class ChooseYourPetActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-
-
         deletePetButton.setOnClickListener {
             deletePetFromFirestore(pet.id)
             dialog.dismiss()
@@ -251,7 +239,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
             .delete()
             .addOnSuccessListener {
                 Toast.makeText(this, "Pet removed.", Toast.LENGTH_SHORT).show()
-                loadPets() // Refresh list
+                loadPets() // refresh list
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to remove pet.", Toast.LENGTH_SHORT).show()
@@ -328,6 +316,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
         val userId = user?.uid ?: return
 
         // Pre-fill email with current user email
+
         editEmail.setText(user?.email ?: "")
 
         // Load existing name from Firestore
@@ -536,49 +525,50 @@ class ChooseYourPetActivity : AppCompatActivity() {
      * Deletes the user's Firebase account.
      */
 
+    /**
+     * Deletes the user from Firestore and Firebase Authentication.
+     */
     private fun deleteUserAccount() {
         val user = FirebaseAuth.getInstance().currentUser
         val userId = user?.uid ?: return
 
-        // Get a reference to the Firestore database
         val db = FirebaseFirestore.getInstance()
-
-        // Delete user's data from Firestore
         val userRef = db.collection("users").document(userId)
 
-        // Delete the pets collection data
-        val petsRef = db.collection("users").document(userId).collection("pets")
-        petsRef.get()
-            .addOnSuccessListener { querySnapshot ->
+        // First, retrieve all subcollections dynamically
+        userRef.collection("pets").get()
+            .addOnSuccessListener { petsSnapshot ->
                 val batch = db.batch()
 
-                // Delete all pets for the user
-                for (document in querySnapshot) {
-                    batch.delete(document.reference)
+                // Delete each pet document
+                for (petDoc in petsSnapshot.documents) {
+                    batch.delete(petDoc.reference)
                 }
 
-                // After deleting pets, delete the user's own document
+                // Once all pets are removed, delete user document
                 batch.delete(userRef)
 
-                // Commit the batch operation to Firestore
+                // Commit batch deletion
                 batch.commit()
                     .addOnSuccessListener {
-                        // After Firestore data is deleted, delete the Firebase Authentication account
+                        // Now delete the user from Firebase Authentication
                         deleteFirebaseUser(user)
                     }
                     .addOnFailureListener { e ->
-                        // Handle failure in batch operation
-                        Toast.makeText(this, "Failed to delete user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Error deleting user data: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
             .addOnFailureListener { e ->
-                // Handle failure when retrieving pets data
                 Toast.makeText(this, "Failed to retrieve user data: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
+
     /**
      * Delete the user from Firebase Authentication after their data is removed from Firestore.
+     */
+    /**
+     * Deletes the user from Firebase Authentication.
      */
     private fun deleteFirebaseUser(user: FirebaseUser) {
         user.delete()
@@ -593,6 +583,7 @@ class ChooseYourPetActivity : AppCompatActivity() {
                 }
             }
     }
+
 
 
 }
